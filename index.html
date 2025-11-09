@@ -1504,11 +1504,12 @@
                 }, 300);
             };
             
-            modalBackdrop.addEventListener('click', (e) => {
-                if (e.target === modalBackdrop) {
-                    closeModal();
-                }
-            });
+            // REMOVED: Backdrop click listener
+            // modalBackdrop.addEventListener('click', (e) => {
+            //     if (e.target === modalBackdrop) {
+            //         closeModal();
+            //     }
+            // });
 
             // --- Confirm Modal Logic ---
             const openConfirmModal = (title, message, onConfirm) => {
