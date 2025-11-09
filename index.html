@@ -1,0 +1,2909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facilities & Construction Dashboard</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* bg-slate-100 */
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; /* bg-slate-100 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+        
+        /* Updated Modal Styles */
+        .modal-backdrop {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 40;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease-out;
+            /* Flexbox for centering */
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            display: none; /* Hidden by default */
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* This rule is crucial for the JS logic to work */
+        .modal-backdrop[style*="display: flex"] > .modal-content[style*="display: block"] {
+            display: block;
+        }
+
+        /* Hide modal content by default, show backdrop */
+        .modal-backdrop[style*="display: none"] > .modal-content {
+            display: none;
+        }
+        
+        /* Animations for modal */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-30px); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 bg-slate-100">
+
+    <!-- App Container -->
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar-nav" class="w-full md:w-64 bg-white border-r border-slate-200 p-4 shrink-0 md:h-screen flex flex-col transition-all duration-300 md:sticky md:top-0">
+            <div> <!-- Wrapper for logo and nav links, to allow toggle to be at bottom -->
+                <div id="sidebar-logo" class="flex items-center gap-3 mb-8">
+                    <div class="p-2 bg-emerald-600 rounded-lg text-white">
+                        <svg id="icon-clipboard-list" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>
+                    </div>
+                    <span class="text-xl font-bold sidebar-text">Projects</span>
+                </div>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" id="nav-dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-projects" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Projects</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-tasks" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Tasks</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-facility" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Facility Tasks</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-timeline" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Timeline</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-quality" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Quality Assurance</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-logs" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Site Logs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="nav-contacts" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Contacts</span>
+                        </a>
+                    </li>
+                    <!-- NEW: Settings Link -->
+                    <li>
+                        <a href="#" id="nav-settings" class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 mt-8">
+                            <!-- Icon will be inserted by JS -->
+                            <span class="sidebar-text">Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Toggle Button at the bottom -->
+            <div class="mt-auto pt-4">
+                <button id="sidebar-toggle" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 w-full">
+                    <svg id="collapse-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"></path><path d="m18 17-5-5 5-5"></path></svg>
+                    <svg id="expand-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+                    <span class="sidebar-text">Collapse</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 overflow-y-auto">
+
+            <!-- Page: Dashboard -->
+            <div id="page-dashboard" class="page-content p-6 md:p-10 space-y-8" style="display: none;">
+                
+                <!-- Dashboard Header -->
+                <header class="mb-4">
+                    <h1 class="text-3xl font-bold text-slate-900">Project Dashboard</h1>
+                    <p class="text-lg text-slate-600 mt-1">Operational overview.</p>
+                </header>
+                
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Active Projects -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 uppercase">Active Projects</p>
+                            <span id="dash-active-projects" class="text-4xl font-bold text-slate-800">0</span>
+                            <p id="dash-active-projects-detail" class="text-sm text-slate-500 mt-1">&nbsp;</p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <span id="dash-icon-projects"></span> <!-- Icon injected by JS -->
+                        </div>
+                    </div>
+                    <!-- Active Tasks -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 uppercase">Active Tasks</p>
+                            <span id="dash-active-tasks" class="text-4xl font-bold text-slate-800">0</span>
+                            <p id="dash-active-tasks-detail" class="text-sm text-slate-500 mt-1">&nbsp;</p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <span id="dash-icon-active-tasks"></span> <!-- Icon injected by JS -->
+                        </div>
+                    </div>
+                    <!-- Pending QA Checks -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 uppercase">Pending QA Checks</p>
+                            <span id="dash-pending-qa" class="text-4xl font-bold text-slate-800">0</span>
+                            <p id="dash-pending-qa-detail" class="text-sm text-slate-500 mt-1">&nbsp;</p>
+                        </div>
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <span id="dash-icon-pending-qa"></span> <!-- Icon injected by JS -->
+                        </div>
+                    </div>
+                    <!-- Failed QA Checks -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between hover:shadow-md transition-shadow duration-200">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 uppercase">Failed QA Checks</p>
+                            <span id="dash-failed-qa" class="text-4xl font-bold text-red-600">0</span>
+                            <p id="dash-failed-qa-detail" class="text-sm text-red-500 mt-1">&nbsp;</p>
+                        </div>
+                        <div class="p-3 bg-red-100 rounded-lg">
+                            <span id="dash-icon-failed-qa"></span> <!-- Icon injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                    <!-- Project Status Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Active Project Progress</h3>
+                        <div class="h-[300px] flex justify-center items-center">
+                            <canvas id="dashboard-project-status-chart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Overall Progress Chart -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Overall Project Progress</h3>
+                        <div class="h-[300px] flex justify-center items-center relative">
+                            <canvas id="dashboard-overall-progress-chart"></canvas>
+                            <!-- Text Overlay for Doughnut Chart -->
+                            <div id="overall-progress-text" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span id="overall-progress-value" class="text-4xl font-bold text-slate-800">0%</span>
+                                <span class="text-sm text-slate-500">Total Progress</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Data Grid (Action Center) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+
+                    <!-- Column 1: High Priority Tasks -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800 p-4 border-b border-slate-200 flex items-center gap-2">
+                            <span id="dash-icon-high-priority"></span> High Priority Tasks
+                        </h3>
+                        <ul id="dash-high-priority-list" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                            <!-- Detailed tasks injected by JS -->
+                        </ul>
+                        <p id="dash-no-high-priority" class="p-4 text-slate-500" style="display: none;">No high priority tasks.</p>
+                    </div>
+
+                    <!-- Column 2: Delayed Tasks -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800 p-4 border-b border-slate-200 flex items-center gap-2">
+                            <span id="dash-icon-delayed-tasks"></span> Delayed Tasks
+                        </h3>
+                        <ul id="dash-delayed-tasks-list" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                            <!-- Delayed tasks injected by JS -->
+                        </ul>
+                        <p id="dash-no-delayed-tasks" class="p-4 text-slate-500" style="display: none;">No delayed tasks. Great job!</p>
+                    </div>
+
+                    <!-- Column 3: Failed QA Checks -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800 p-4 border-b border-slate-200 flex items-center gap-2">
+                            <span id="dash-icon-failed-list"></span> Failed QA Checks
+                        </h3>
+                        <ul id="dash-failed-qa-list" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                            <!-- Failed checks injected by JS -->
+                        </ul>
+                        <p id="dash-no-failed-qa" class="p-4 text-slate-500" style="display: none;">No failed QA checks.</p>
+                    </div>
+
+                    <!-- Column 4: Upcoming Deadlines -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-semibold text-slate-800 p-4 border-b border-slate-200 flex items-center gap-2">
+                            <span id="dash-icon-upcoming-deadlines"></span> Upcoming Deadlines
+                        </h3>
+                        <ul id="dash-upcoming-deadlines-list" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                            <!-- Deadlines injected by JS -->
+                        </ul>
+                        <p id="dash-no-upcoming-deadlines" class="p-4 text-slate-500" style="display: none;">No deadlines in the next 7 days.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Projects -->
+            <div id="page-projects" class="page-content p-6 md:p-10" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-slate-900">Projects</h1>
+                    <button id="add-project-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-150 ease-in-out">
+                        <span id="add-project-icon"></span>
+                        Add New Project
+                    </button>
+                </div>
+                
+                <div id="project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Project cards will be injected here -->
+                </div>
+                
+                <p id="no-projects-msg" class="text-center text-slate-500 mt-10" style="display: none;">
+                    No projects found. Click "Add New Project" to get started.
+                </p>
+            </div>
+
+            <!-- Page: Tasks -->
+            <div id="page-tasks" class="page-content p-6 md:p-10" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-slate-900">Tasks</h1>
+                    <button id="add-task-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-150 ease-in-out">
+                        <span id="add-task-icon"></span>
+                        Add New Task
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="task-project-filter" class="block text-sm font-medium text-slate-700 mb-1">Filter by Project</label>
+                        <select id="task-project-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                            <option value="all">All Projects</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="task-status-filter" class="block text-sm font-medium text-slate-700 mb-1">Filter by Status</label>
+                        <select id="task-status-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                            <option value="all">All Statuses</option>
+                            <option value="To-Do">To-Do</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="task-type-filter" class="block text-sm font-medium text-slate-700 mb-1">Filter by Type</label>
+                        <select id="task-type-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                            <option value="all">All Types</option>
+                            <option value="General">General</option>
+                            <option value="Permit">Permit</option>
+                            <option value="Coordination">Coordination</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Task Grid Container -->
+                <ul id="main-task-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Task cards injected here -->
+                </ul>
+
+                <!-- No Tasks Message -->
+                <div id="no-tasks-msg" class="text-center py-12 bg-white rounded-xl shadow-sm border border-slate-200" style="display: none;">
+                     <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </span>
+                    <h3 class="text-lg font-medium text-slate-900">No tasks found</h3>
+                    <p class="text-slate-500 mt-1">Try adjusting your filters or add a new task.</p>
+                </div>
+            </div>
+            
+            <!-- Page: Facility Tasks -->
+            <div id="page-facility" class="page-content p-6 md:p-10" style="display: none;">
+                <h1 class="text-3xl font-bold text-slate-900 mb-6">Facility Tasks</h1>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Maintenance -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h2 class="text-xl font-semibold text-slate-800 p-4 border-b border-slate-200">Recurring Maintenance</h2>
+                        <ul id="maintenance-task-list" class="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+                            <!-- Tasks injected here -->
+                        </ul>
+                        <p id="no-maintenance-tasks" class="p-4 text-slate-500" style="display: none;">No maintenance tasks found.</p>
+                    </div>
+                    
+                    <!-- Reconfiguration -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                        <h2 class="text-xl font-semibold text-slate-800 p-4 border-b border-slate-200">Reconfiguration</h2>
+                        <ul id="reconfig-task-list" class="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
+                            <!-- Tasks injected here -->
+                        </ul>
+                        <p id="no-reconfig-tasks" class="p-4 text-slate-500" style="display: none;">No reconfiguration tasks found.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Timeline -->
+            <div id="page-timeline" class="page-content p-6 md:p-10" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-slate-900">Project Timeline</h1>
+                    <div class="flex items-center gap-2">
+                        <button id="timeline-prev" class="p-2 rounded-lg text-slate-500 hover:bg-slate-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+                        </button>
+                        <span id="timeline-month-year" class="text-xl font-semibold text-slate-800 w-40 text-center"></span>
+                        <button id="timeline-next" class="p-2 rounded-lg text-slate-500 hover:bg-slate-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Calendar Header -->
+                    <div class="grid grid-cols-7 border-b border-slate-200">
+                        <div class="p-3 text-center font-medium text-slate-600">Sun</div>
+                        <div class="p-3 text-center font-medium text-slate-600">Mon</div>
+                        <div class="p-3 text-center font-medium text-slate-600">Tue</div>
+                        <div class="p-3 text-center font-medium text-slate-600">Wed</div>
+                        <div class="p-3 text-center font-medium text-slate-600">Thu</div>
+                        <div class="p-3 text-center font-medium text-slate-600">Fri</div>
+                        <div class="p-3 text-center font-medium text-slate-600">Sat</div>
+                    </div>
+                    <!-- Calendar Grid -->
+                    <div id="timeline-grid" class="grid grid-cols-7 grid-rows-6">
+                        <!-- Days injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Quality Assurance -->
+            <div id="page-quality" class="page-content p-6 md:p-10" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-slate-900">Quality Assurance</h1>
+                    <button id="add-check-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-150 ease-in-out">
+                        <span id="add-check-icon"></span>
+                        Add New Check
+                    </button>
+                </div>
+
+                <!-- QA Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-sm font-medium text-green-600 uppercase">Passed</p>
+                        <span id="summary-passed" class="text-4xl font-bold text-green-600">0</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-sm font-medium text-red-600 uppercase">Failed</p>
+                        <span id="summary-failed" class="text-4xl font-bold text-red-600">0</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <p class="text-sm font-medium text-slate-500 uppercase">Pending</p>
+                        <span id="summary-pending" class="text-4xl font-bold text-slate-800">0</span>
+                    </div>
+                </div>
+
+                <!-- QA Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="check-project-filter" class="block text-sm font-medium text-slate-700 mb-1">Filter by Project</label>
+                        <select id="check-project-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                            <option value="all">All Projects</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="check-status-filter" class="block text-sm font-medium text-slate-700 mb-1">Filter by Status</label>
+                        <select id="check-status-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                            <option value="all">All Statuses</option>
+                            <option value="Passed">Passed</option>
+                            <option value="Failed">Failed</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- QA List -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+                    <ul id="quality-check-list" class="divide-y divide-slate-100">
+                        <!-- Checks injected here -->
+                    </ul>
+                    <p id="no-checks-msg" class="text-center text-slate-500 p-10" style="display: none;">
+                        No quality checks found for the selected filters.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Page: Site Logs -->
+            <div id="page-logs" class="page-content p-6 md:p-10" style="display: none;">
+                <h1 class="text-3xl font-bold text-slate-900 mb-6">Site Logs</h1>
+                
+                <!-- Log Entry Form -->
+                <form id="log-form" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="log-project" class="block text-sm font-medium text-slate-700 mb-1">Project</label>
+                        <select id="log-project" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out" required>
+                            <option value="">Select a project...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="log-date" class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                        <input type="date" id="log-date" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out" required>
+                    </div>
+                    <div class="md:col-span-4">
+                        <label for="log-entry" class="block text-sm font-medium text-slate-700 mb-1">Log Entry</label>
+                        <textarea id="log-entry" rows="4" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out" placeholder="Enter log details, observations, incidents..." required></textarea>
+                    </div>
+                    <div class="md:col-span-4 text-right">
+                        <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out">
+                            Add Log Entry
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Log List -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                    <h2 class="text-xl font-semibold text-slate-800">Log History</h2>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <div class="flex-1 md:w-48">
+                             <label for="log-type-filter" class="sr-only">Filter by Type</label>
+                            <select id="log-type-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                                <option value="all">All Types</option>
+                                <option value="user">User Logs</option>
+                                <option value="system">System Logs</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 md:w-64">
+                            <label for="log-project-filter" class="sr-only">Filter by Project</label>
+                            <select id="log-project-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                                <option value="all">All Projects</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="log-list" class="space-y-4">
+                    <!-- Log entries injected here -->
+                </div>
+                <p id="no-logs-msg" class="text-center text-slate-500 mt-10" style="display: none;">
+                    No log entries found.
+                </p>
+            </div>
+
+            <!-- Page: Contacts -->
+            <div id="page-contacts" class="page-content p-6 md:p-10" style="display: none;">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-slate-900">Contacts</h1>
+                    <button id="add-contact-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-150 ease-in-out">
+                        <span id="add-contact-icon"></span>
+                        Add New Contact
+                    </button>
+                </div>
+
+                <!-- Search & Filter Bar (NEW) -->
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                            </span>
+                            <input type="text" id="contact-search" class="block w-full pl-10 pr-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out" placeholder="Search by name, role, email, or phone...">
+                        </div>
+                    </div>
+                    <div class="md:w-72">
+                        <select id="contact-project-filter" class="block w-full px-3 py-2 bg-white border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm transition duration-150 ease-in-out">
+                            <option value="all">All Projects</option>
+                            <!-- Projects injected by JS -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="contact-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Contact cards injected here -->
+                </div>
+                
+                <p id="no-contacts-msg" class="text-center text-slate-500 mt-10" style="display: none;">
+                    No contacts found matching your criteria.
+                </p>
+            </div>
+
+            <!-- Page: Settings (NEW) -->
+            <div id="page-settings" class="page-content p-6 md:p-10" style="display: none;">
+                <h1 class="text-3xl font-bold text-slate-900 mb-6">Settings</h1>
+                
+                <div class="space-y-8 max-w-4xl">
+                    <!-- Data Management Section -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+                            <div class="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                                <span id="settings-icon-database"></span>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-slate-800">Data Management</h2>
+                                <p class="text-sm text-slate-500">Backup and restore your dashboard data.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Export -->
+                            <div class="p-5 border border-slate-200 rounded-xl bg-slate-50/50">
+                                <h3 class="font-medium text-slate-800 mb-2 flex items-center gap-2">
+                                    <span id="settings-icon-download"></span> Export Data
+                                </h3>
+                                <p class="text-sm text-slate-600 mb-4 leading-relaxed">Download a full backup of all projects, tasks, logs, and contacts as a JSON file.</p>
+                                <button id="export-data-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                                    Download Backup
+                                </button>
+                            </div>
+                            
+                            <!-- Import -->
+                            <div class="p-5 border border-slate-200 rounded-xl bg-slate-50/50">
+                                <h3 class="font-medium text-slate-800 mb-2 flex items-center gap-2">
+                                    <span id="settings-icon-upload"></span> Import Data
+                                </h3>
+                                <p class="text-sm text-slate-600 mb-4 leading-relaxed">Restore data from a backup file. <strong class="text-slate-800">Warning: This will overwrite current data.</strong></p>
+                                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                                <button id="import-data-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-slate-500">
+                                    Select File to Restore
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone Section -->
+                    <div class="bg-red-50 p-6 rounded-xl shadow-sm border border-red-100">
+                        <div class="flex items-center gap-3 mb-4 border-b border-red-200/60 pb-4">
+                             <div class="p-2 bg-red-100 text-red-700 rounded-lg">
+                                <span id="settings-icon-danger"></span>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-red-900">Danger Zone</h2>
+                                <p class="text-sm text-red-700">Irreversible actions.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h3 class="font-medium text-red-900 mb-1">Clear All Data</h3>
+                                <p class="text-sm text-red-700/80 max-w-md">Permanently delete all data stored in this browser. This action cannot be undone unless you have a backup.</p>
+                            </div>
+                            <button id="clear-data-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all shrink-0">
+                                Delete Everything
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div> <!-- End of App Container -->
+
+    <!--
+    ================================================================
+    MODALS
+    All modals are placed here, inside the backdrop
+    ================================================================
+    -->
+    <div id="modal-backdrop" class="modal-backdrop">
+
+        <!-- Add/Edit Project Modal -->
+        <div id="project-modal" class="modal-content bg-white rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="project-modal-title" class="text-xl font-semibold">Add New Project</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-project-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="project-form" class="mt-6">
+                <input type="hidden" id="project-id">
+                <div class="space-y-4">
+                    <div>
+                        <label for="project-name" class="block text-sm font-medium text-slate-700 mb-1">Project Name</label>
+                        <input type="text" id="project-name" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., 12th Fl. Renovation" required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="project-location" class="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                            <input type="text" id="project-location" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., BGC Tower" required>
+                        </div>
+                        <div>
+                            <label for="project-type" class="block text-sm font-medium text-slate-700 mb-1">Project Type</label>
+                            <select id="project-type" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                                <option value="Renovation">Renovation</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Reconfiguration">Reconfiguration</option>
+                                <option value="New Build">New Build</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="project-start-date" class="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+                            <input type="date" id="project-start-date" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                        </div>
+                        <div>
+                            <label for="project-end-date" class="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+                            <input type="date" id="project-end-date" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="project-status" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                        <select id="project-status" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                            <option value="Planning">Planning</option>
+                            <option value="Permitting">Permitting</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="On Hold">On Hold</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="project-notes" class="block text-sm font-medium text-slate-700 mb-1">Notes & Links</label>
+                        <textarea id="project-notes" rows="3" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="Add any links to plans, permit numbers, or quick notes..."></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-project-modal">Cancel</button>
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out">
+                        Save Project
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Add/Edit Task Modal -->
+        <div id="task-modal" class="modal-content bg-white rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="task-modal-title" class="text-xl font-semibold">Add New Task</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-task-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="task-form" class="mt-6">
+                <input type="hidden" id="task-id">
+                <div class="space-y-4">
+                    <div>
+                        <label for="task-description" class="block text-sm font-medium text-slate-700 mb-1">Task Description</label>
+                        <input type="text" id="task-description" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., Secure landlord permit" required>
+                    </div>
+                    <div>
+                        <label for="task-project" class="block text-sm font-medium text-slate-700 mb-1">Project</label>
+                        <select id="task-project" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                            <option value="">Select a project...</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="task-priority" class="block text-sm font-medium text-slate-700 mb-1">Priority</label>
+                            <select id="task-priority" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="task-status" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                            <select id="task-status" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                                <option value="To-Do">To-Do</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="task-type" class="block text-sm font-medium text-slate-700 mb-1">Task Type</label>
+                            <select id="task-type" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                                <option value="General">General</option>
+                                <option value="Permit">Permit</option>
+                                <option value="Coordination">Coordination</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Reconfiguration">Reconfiguration</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="task-due-date" class="block text-sm font-medium text-slate-700 mb-1">Due Date</label>
+                            <input type="date" id="task-due-date" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out">
+                        </div>
+                        <!-- Cost Field -->
+                        <div>
+                            <label for="task-cost" class="block text-sm font-medium text-slate-700 mb-1">Cost (PHP)</label>
+                            <input type="number" id="task-cost" step="any" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., 50000">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-task-modal">Cancel</button>
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out">
+                        Save Task
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Add/Edit Contact Modal -->
+        <div id="contact-modal" class="modal-content bg-white rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="contact-modal-title" class="text-xl font-semibold">Add New Contact</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-contact-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="contact-form" class="mt-6">
+                <input type="hidden" id="contact-id">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contact-name" class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                            <input type="text" id="contact-name" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., Maria Santos" required>
+                        </div>
+                        <div>
+                            <label for="contact-role" class="block text-sm font-medium text-slate-700 mb-1">Role / Company</label>
+                            <input type="text" id="contact-role" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., Landlord Admin" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="contact-project" class="block text-sm font-medium text-slate-700 mb-1">Associated Project (optional)</label>
+                        <select id="contact-project" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out">
+                            <option value="">None</option>
+                            <!-- Projects injected here -->
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contact-phone" class="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                            <input type="tel" id="contact-phone" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., 0917-123-4567" required>
+                        </div>
+                        <div>
+                            <label for="contact-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                            <input type="email" id="contact-email" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., maria@email.com" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-contact-modal">Cancel</button>
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out">
+                        Save Contact
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirm-modal" class="modal-content bg-white rounded-lg shadow-xl p-6 max-w-sm">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="confirm-modal-title" class="text-xl font-semibold">Are you sure?</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-confirm-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="mt-4">
+                <p id="confirm-modal-message" class="text-sm text-slate-600">This action cannot be undone.</p>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-delete-btn">Cancel</button>
+                <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-150 ease-in-out" id="confirm-delete-btn">
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <!-- Add/Edit Subtasks Modal -->
+        <div id="subtask-modal" class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="subtask-modal-title" class="text-xl font-semibold">Subtasks</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-subtask-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <input type="hidden" id="subtask-task-id">
+            
+            <!-- List of subtasks -->
+            <div class="mt-6 max-h-[300px] overflow-y-auto pr-2 space-y-3">
+                <ul id="subtask-list" class="space-y-3">
+                    <!-- Subtasks will be injected here -->
+                </ul>
+                <p id="no-subtasks-msg" class="text-slate-500 text-center p-4" style="display: none;">No subtasks added yet.</p>
+            </div>
+
+            <!-- Add new subtask form -->
+            <form id="subtask-form" class="mt-6 border-t border-slate-200 pt-6">
+                <h4 class="text-lg font-medium text-slate-800 mb-3">Add New Subtask</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label for="subtask-description" class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                        <input type="text" id="subtask-description" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., Install 10 light fixtures" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="subtask-total-qty" class="block text-sm font-medium text-slate-700 mb-1">Total Qty</label>
+                            <input type="number" id="subtask-total-qty" min="1" step="any" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., 10" required>
+                        </div>
+                        <div>
+                            <label for="subtask-unit" class="block text-sm font-medium text-slate-700 mb-1">Unit</label>
+                            <input type="text" id="subtask-unit" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., pcs, sqm" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out w-full">
+                        Add Subtask
+                    </button>
+                </div>
+            </form>
+
+            <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-slate-100">
+                <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-subtask-modal">Cancel</button>
+                <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="save-subtasks-btn">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Add/Edit Quality Check Modal -->
+        <div id="check-modal" class="modal-content bg-white rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="check-modal-title" class="text-xl font-semibold">Add New Quality Check</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-check-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <form id="check-form" class="mt-6">
+                <input type="hidden" id="check-id">
+                <div class="space-y-4">
+                    <div>
+                        <label for="check-description" class="block text-sm font-medium text-slate-700 mb-1">Checklist Item</label>
+                        <input type="text" id="check-description" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg placeholder-slate-400 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" placeholder="e.g., Verify paint finish" required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="check-project" class="block text-sm font-medium text-slate-700 mb-1">Project</label>
+                            <select id="check-project" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                                <option value="">Select a project...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="check-status" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                            <select id="check-status" class="block w-full px-3 py-2 bg-slate-50 border border-slate-400 rounded-lg focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white sm:text-sm transition duration-150 ease-in-out" required>
+                                <option value="Pending">Pending</option>
+                                <option value="Passed">Passed</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-check-modal">Cancel</button>
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out">
+                        Save Check
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- View Subtasks (Read-only) Modal -->
+        <div id="view-subtask-modal" class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="view-subtask-modal-title" class="text-xl font-semibold">View Subtasks</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-view-subtask-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <!-- List of read-only subtasks -->
+            <div class="mt-6 max-h-[400px] overflow-y-auto pr-2 space-y-3">
+                <ul id="view-subtask-list" class="space-y-3">
+                    <!-- Read-only subtasks will be injected here -->
+                </ul>
+                <p id="view-no-subtasks-msg" class="text-slate-500 text-center p-4" style="display: none;">No subtasks found.</p>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8">
+                <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="cancel-view-subtask-modal">Close</button>
+            </div>
+        </div>
+
+        <!-- View Notes Modal -->
+        <div id="notes-modal" class="modal-content bg-white rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <h3 id="notes-modal-title" class="text-xl font-semibold">Project Notes & Links</h3>
+                <button type="button" class="p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-150 ease-in-out" id="close-notes-modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div id="notes-modal-content" class="mt-6 text-sm text-slate-700 whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
+                <!-- Notes content injected here -->
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button type="button" class="inline-flex justify-center items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-lg shadow-sm text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-150 ease-in-out" id="ok-notes-modal">OK</button>
+            </div>
+        </div>
+
+    </div> <!-- End of modal-backdrop -->
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg z-50" style="display: none; transform: translateY(20px); opacity: 0; transition: all 0.3s ease-out;">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Main Application Script -->
+    <script>
+        
+        /**
+         * Pure SVG Icon provider.
+         * This function returns the raw SVG string for a given icon.
+         */
+        function getIconHTML(iconName, props = {}) {
+            const size = props.size || 16;
+            const className = props.className || '';
+            const defaultAttrs = `xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}"`;
+
+            // SVG paths for all required icons
+            switch (iconName) {
+                case 'hard-hat':
+                    return `<svg ${defaultAttrs}><path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"></path><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"></path><path d="M4 15v-3a6 6 0 0 1 6-6h0"></path><path d="M14 6h0a6 6 0 0 1 6 6v3"></path></svg>`;
+                case 'check-square':
+                    return `<svg ${defaultAttrs}><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>`;
+                case 'notebook-tabs':
+                    return `<svg ${defaultAttrs}><path d="M2 6h4"></path><path d="M2 10h4"></path><path d="M2 14h4"></path><path d="M2 18h4"></path><rect width="16" height="20" x="4" y="2" rx="2"></rect><path d="M15 2v20"></path><path d="M15 7h5"></path><path d="M15 12h5"></path><path d="M15 17h5"></path></svg>`;
+                case 'contact':
+                    return `<svg ${defaultAttrs}><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><circle cx="12" cy="10" r="2"></circle><line x1="8" x2="8" y1="2" y2="4"></line><line x1="16" x2="16" y1="2" y2="4"></line></svg>`;
+                case 'clipboard-list':
+                    return `<svg ${defaultAttrs}><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg>`;
+                case 'plus-circle':
+                    return `<svg ${defaultAttrs}><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="16"></line><line x1="8" x2="16" y1="12" y2="12"></line></svg>`;
+                case 'user-plus':
+                    return `<svg ${defaultAttrs}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>`;
+                case 'map-pin':
+                    return `<svg ${defaultAttrs}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
+                case 'calendar':
+                    return `<svg ${defaultAttrs}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>`;
+                case 'tag':
+                    return `<svg ${defaultAttrs}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"></path><path d="M7 7h.01"></path></svg>`;
+                case 'circle':
+                    return `<svg ${defaultAttrs}><circle cx="12" cy="12" r="10"></circle></svg>`;
+                case 'check-circle':
+                    return `<svg ${defaultAttrs}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+                case 'loader': 
+                    return `<svg ${defaultAttrs}><line x1="12" x2="12" y1="2" y2="6"></line><line x1="12" x2="12" y1="18" y2="22"></line><line x1="4.93" x2="7.76" y1="4.93" y2="7.76"></line><line x1="16.24" x2="19.07" y1="16.24" y2="19.07"></line><line x1="2" x2="6" y1="12" y2="12"></line><line x1="18" x2="22" y1="12" y2="12"></line><line x1="4.93" x2="7.76" y1="19.07" y2="16.24"></line><line x1="16.24" x2="19.07" y1="7.76" y2="4.93"></line></svg>`;
+                case 'edit-2':
+                    return `<svg ${defaultAttrs}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`;
+                case 'trash-2':
+                    return `<svg ${defaultAttrs}><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>`;
+                case 'phone':
+                    return `<svg ${defaultAttrs}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+                case 'mail':
+                    return `<svg ${defaultAttrs}><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 19.4 0 0 1-2.06 0L2 7"></path></svg>`;
+                case 'user':
+                    return `<svg ${defaultAttrs}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+                case 'chevrons-up':
+                    return `<svg ${defaultAttrs}><path d="m17 11-5-5-5 5"></path><path d="m17 18-5-5-5 5"></path></svg>`;
+                case 'chevron-up':
+                    return `<svg ${defaultAttrs}><path d="m18 15-6-6-6 6"></path></svg>`;
+                case 'chevron-down':
+                    return `<svg ${defaultAttrs}><path d="m6 9 6 6 6-6"></path></svg>`;
+                case 'alert-triangle':
+                    return `<svg ${defaultAttrs}><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>`;
+                case 'activity':
+                    return `<svg ${defaultAttrs}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>`;
+                case 'shield-check':
+                    return `<svg ${defaultAttrs}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>`;
+                case 'shield-x':
+                    return `<svg ${defaultAttrs}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m14.5 9-5 5"></path><path d="m9.5 9 5 5"></path></svg>`;
+                case 'rotate-cw':
+                    return `<svg ${defaultAttrs}><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path></svg>`;
+                case 'x-circle':
+                    return `<svg ${defaultAttrs}><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+                case 'layout-dashboard':
+                    return `<svg ${defaultAttrs}><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>`;
+                case 'wrench':
+                    return `<svg ${defaultAttrs}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.4 1.4a1 1 0 0 0 1.4 0l3.5-3.5a1 1 0 0 0 0-1.4l-1.4-1.4a1 1 0 0 0-1.4 0l-3.5 3.5Z"></path><path d="M7 13l-2 2-2 2-2 2 3 3 2-2 2-2 2-2"></path><path d="m2 22 3-3"></path><path d="M18 13.3 10.7 6l-2 2L13.3 18l2-2"></path></svg>`;
+                case 'calendar-days':
+                    return `<svg ${defaultAttrs}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg>`;
+                case 'clock':
+                    return `<svg ${defaultAttrs}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+                case 'book-marked':
+                    return `<svg ${defaultAttrs}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path><path d="m14 6-4 4 4 4"></path></svg>`;
+                case 'bell':
+                    return `<svg ${defaultAttrs}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`;
+                case 'alert-circle':
+                    return `<svg ${defaultAttrs}><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12" y1="16" y2="16.01"></line></svg>`;
+                case 'chevrons-left':
+                    return `<svg ${defaultAttrs}><path d="m11 17-5-5 5-5"></path><path d="m18 17-5-5 5-5"></path></svg>`;
+                case 'chevrons-right':
+                    return `<svg ${defaultAttrs}><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>`;
+                case 'list-plus':
+                    return `<svg ${defaultAttrs}><path d="M10 18H5"></path><path d="M10 12H5"></path><path d="M10 6H5"></path><path d="M21 12h-6"></path><path d="M18 9v6"></path></svg>`;
+                case 'eye':
+                    return `<svg ${defaultAttrs}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+                // NEW ICONS FOR SETTINGS
+                case 'settings':
+                    return `<svg ${defaultAttrs}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+                case 'download':
+                    return `<svg ${defaultAttrs}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>`;
+                case 'upload':
+                    return `<svg ${defaultAttrs}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg>`;
+                case 'database':
+                    return `<svg ${defaultAttrs}><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`;
+                default:
+                    console.warn(`Icon "${iconName}" not found.`);
+                    return '';
+            }
+        }
+
+        // --- App State (In-memory "database") ---
+        let db = {
+            projects: [],
+            tasks: [],
+            logs: [],
+            contacts: [],
+            qualityChecks: []
+        };
+
+        const STORAGE_KEY = 'facilities_dashboard_v1';
+
+        const saveDb = () => {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+            } catch (e) {
+                console.error('Could not save to localStorage', e);
+                showToast('Error: Could not save data (storage might be full)');
+            }
+        };
+        
+        // --- Utility Functions ---
+        
+        const generateId = () => `id_${new Date().getTime()}_${Math.random().toString(36).substring(2, 9)}`;
+        
+        const formatDate = (dateString) => {
+            if (!dateString || isNaN(new Date(dateString))) {
+                return 'N/A';
+            }
+            const date = new Date(dateString + 'T12:00:00Z');
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'UTC' 
+            });
+        };
+        
+        const getStatusBadge = (status) => {
+            switch (status) {
+                case 'Ongoing':
+                case 'In Progress':
+                    return 'bg-blue-100 text-blue-800';
+                case 'Completed':
+                case 'Done':
+                case 'Passed':
+                    return 'bg-green-100 text-green-800';
+                case 'Planning':
+                case 'To-Do':
+                case 'Pending':
+                    return 'bg-gray-100 text-gray-800';
+                case 'Permitting':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'On Hold':
+                case 'Failed':
+                    return 'bg-red-100 text-red-800';
+                case 'At Risk': // Added for completeness if used manually later
+                    return 'bg-amber-100 text-amber-800';
+                default:
+                    return 'bg-slate-100 text-slate-800';
+            }
+        };
+
+        const getPriorityIcon = (priority) => {
+            switch (priority) {
+                case 'High':
+                    return getIconHTML('chevrons-up', { className: 'text-red-500', size: 18 });
+                case 'Medium':
+                    return getIconHTML('chevron-up', { className: 'text-yellow-500', size: 18 });
+                case 'Low':
+                    return getIconHTML('chevron-down', { className: 'text-green-500', size: 18 });
+                default:
+                    return '';
+            }
+        };
+
+        // --- NEW: Toast Notification Logic ---
+        let toastTimer;
+        const showToast = (message) => {
+            const toast = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+            if (!toast || !toastMessage) return;
+            clearTimeout(toastTimer);
+            toastMessage.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = 1;
+            }, 10);
+            toastTimer = setTimeout(() => {
+                toast.style.transform = 'translateY(20px)';
+                toast.style.opacity = 0;
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 300);
+            }, 3000);
+        };
+
+        const copyToClipboard = (text) => {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            let success = false;
+            try {
+                success = document.execCommand('copy');
+            } catch (err) {
+                console.error('Failed to copy to clipboard:', err);
+            }
+            document.body.removeChild(textArea);
+            if (success) {
+                showToast(`Copied to clipboard!`);
+            } else {
+                showToast('Failed to copy email.');
+            }
+        };
+
+        const formatPhoneForViber = (phone) => {
+            if (!phone) return '';
+            let digits = phone.replace(/\D/g, '');
+            if (digits.startsWith('09')) {
+                return `+63${digits.substring(1)}`;
+            }
+            if (digits.startsWith('63')) {
+                return `+${digits}`;
+            }
+            if (phone.startsWith('+')) {
+                 return phone.replace(/\D/g, '');
+            }
+            return `+63${digits}`;
+        };
+
+        // --- FIX: ALL SCRIPT LOGIC MOVED INSIDE DOMCONTENTLOADED ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DOM Elements ---
+            const pages = document.querySelectorAll('.page-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            
+            // Project elements
+            const projectModal = document.getElementById('project-modal');
+            const projectForm = document.getElementById('project-form');
+            const projectList = document.getElementById('project-list');
+            const noProjectsMsg = document.getElementById('no-projects-msg');
+            
+            // Task elements
+            const taskModal = document.getElementById('task-modal');
+            const taskForm = document.getElementById('task-form');
+            const mainTaskGrid = document.getElementById('main-task-grid');
+            const noTasksMsg = document.getElementById('no-tasks-msg');
+            const taskProjectFilter = document.getElementById('task-project-filter');
+            const taskStatusFilter = document.getElementById('task-status-filter');
+            const taskTypeFilter = document.getElementById('task-type-filter');
+
+            // Log elements
+            const logForm = document.getElementById('log-form');
+            const logList = document.getElementById('log-list');
+            const noLogsMsg = document.getElementById('no-logs-msg');
+            const logProjectFilter = document.getElementById('log-project-filter');
+            const logTypeFilter = document.getElementById('log-type-filter');
+
+            // Contact elements
+            const contactModal = document.getElementById('contact-modal');
+            const contactForm = document.getElementById('contact-form');
+            const contactList = document.getElementById('contact-list');
+            const noContactsMsg = document.getElementById('no-contacts-msg');
+            // NEW CONTACT ELEMENTS
+            const contactSearch = document.getElementById('contact-search');
+            const contactProjectFilter = document.getElementById('contact-project-filter');
+
+            // Quality Check elements
+            const checkModal = document.getElementById('check-modal');
+            const checkForm = document.getElementById('check-form');
+            const qualityCheckList = document.getElementById('quality-check-list');
+            const noChecksMsg = document.getElementById('no-checks-msg');
+            const checkProjectFilter = document.getElementById('check-project-filter');
+            const checkStatusFilter = document.getElementById('check-status-filter');
+            const summaryPassed = document.getElementById('summary-passed');
+            const summaryFailed = document.getElementById('summary-failed');
+            const summaryPending = document.getElementById('summary-pending');
+    
+            // Dashboard elements
+            const dashActiveProjects = document.getElementById('dash-active-projects');
+            const dashActiveTasks = document.getElementById('dash-active-tasks');
+            const dashPendingQA = document.getElementById('dash-pending-qa');
+            const dashFailedQA = document.getElementById('dash-failed-qa');
+            const dashActiveProjectsDetail = document.getElementById('dash-active-projects-detail');
+            const dashActiveTasksDetail = document.getElementById('dash-active-tasks-detail');
+            const dashPendingQADetail = document.getElementById('dash-pending-qa-detail');
+            const dashFailedQADetail = document.getElementById('dash-failed-qa-detail');
+            
+            const dashHighPriorityList = document.getElementById('dash-high-priority-list');
+            const dashNoHighPriority = document.getElementById('dash-no-high-priority');
+            const dashFailedQAList = document.getElementById('dash-failed-qa-list');
+            const dashNoFailedQA = document.getElementById('dash-no-failed-qa');
+            const dashDelayedTasksList = document.getElementById('dash-delayed-tasks-list');
+            const dashNoDelayedTasks = document.getElementById('dash-no-delayed-tasks');
+            
+            const dashUpcomingDeadlinesList = document.getElementById('dash-upcoming-deadlines-list');
+            const dashNoUpcomingDeadlines = document.getElementById('dash-no-upcoming-deadlines');
+            
+            // Settings elements
+            const exportDataBtn = document.getElementById('export-data-btn');
+            const importDataBtn = document.getElementById('import-data-btn');
+            const importFileInput = document.getElementById('import-file-input');
+            const clearDataBtn = document.getElementById('clear-data-btn');
+
+            // Chart variables
+            let chartProjectStatus = null;
+            let chartOverallProgress = null;
+
+            // Confirm Modal elements
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmModalTitle = document.getElementById('confirm-modal-title');
+            const confirmModalMessage = document.getElementById('confirm-modal-message');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+
+            let currentConfirmCallback = null;
+
+            // Subtask Modal elements
+            const subtaskModal = document.getElementById('subtask-modal');
+            const subtaskModalTitle = document.getElementById('subtask-modal-title');
+            const subtaskTaskIdInput = document.getElementById('subtask-task-id');
+            const subtaskList = document.getElementById('subtask-list');
+            const noSubtasksMsg = document.getElementById('no-subtasks-msg');
+            const subtaskForm = document.getElementById('subtask-form');
+            const saveSubtasksBtn = document.getElementById('save-subtasks-btn'); // NEW
+
+            // View Subtask Modal elements
+            const viewSubtaskModal = document.getElementById('view-subtask-modal');
+            const viewSubtaskModalTitle = document.getElementById('view-subtask-modal-title');
+            const viewSubtaskList = document.getElementById('view-subtask-list');
+            const viewNoSubtasksMsg = document.getElementById('view-no-subtasks-msg');
+
+            // Notes Modal elements
+            const notesModal = document.getElementById('notes-modal');
+            const notesModalTitle = document.getElementById('notes-modal-title');
+            const notesModalContent = document.getElementById('notes-modal-content');
+
+            // Facility Task elements
+            const maintenanceTaskList = document.getElementById('maintenance-task-list');
+            const noMaintenanceTasks = document.getElementById('no-maintenance-tasks');
+            const reconfigTaskList = document.getElementById('reconfig-task-list');
+            const noReconfigTasks = document.getElementById('no-reconfig-tasks');
+
+            // Timeline elements
+            const timelineMonthYear = document.getElementById('timeline-month-year');
+            const timelineGrid = document.getElementById('timeline-grid');
+            const timelinePrevBtn = document.getElementById('timeline-prev');
+            const timelineNextBtn = document.getElementById('timeline-next');
+
+            let timelineCurrentDate = new Date();
+
+            // --- Helper: Project Progress Calculation (Moved up for access by logger) ---
+            const calculateProjectProgress = (projectId) => {
+                const projectTasks = db.tasks.filter(t => t.projectId === projectId);
+                if (projectTasks.length === 0) return 0;
+                let totalCost = 0;
+                let weightedProgressSum = 0;
+                projectTasks.forEach(task => {
+                    const cost = parseFloat(task.cost) || 0;
+                    const progress = task.progress || 0;
+                    totalCost += cost;
+                    weightedProgressSum += (progress / 100) * cost;
+                });
+                if (totalCost > 0) {
+                    return Math.round((weightedProgressSum / totalCost) * 100);
+                } else {
+                    const totalProgress = projectTasks.reduce((sum, task) => sum + (task.progress || 0), 0);
+                    return Math.round(totalProgress / projectTasks.length);
+                }
+            };
+
+            // --- NEW: Automated Logging Helper ---
+            const logProgressChange = (projectId, message) => {
+                if (!projectId) return;
+                
+                // Calculate current project progress to include in log
+                let projectProgressStr = '';
+                try {
+                     const progress = calculateProjectProgress(projectId);
+                     projectProgressStr = ` [Project Progress: ${progress}%]`;
+                } catch (e) {
+                    // Fallback if something goes wrong with calculation during logging
+                    console.warn("Could not calculate project progress for log", e);
+                }
+
+                db.logs.push({
+                    id: generateId(),
+                    projectId: projectId,
+                    date: new Date().toISOString(), // Use full ISO string for accurate sorting
+                    entry: message + projectProgressStr,
+                    type: 'system' // Mark as system log
+                });
+                saveDb();
+            };
+
+            // --- Navigation Handling ---
+            const switchPage = (targetId) => {
+                pages.forEach(page => page.style.display = 'none');
+                const targetPage = document.getElementById(targetId);
+                if (targetPage) {
+                    targetPage.style.display = 'block';
+                }
+                navLinks.forEach(link => {
+                    link.classList.remove('bg-emerald-50', 'text-emerald-700');
+                    link.classList.add('text-slate-600', 'hover:bg-slate-100');
+                });
+                const activeLink = document.getElementById(`nav-${targetId.split('-')[1]}`);
+                if (activeLink) {
+                    activeLink.classList.add('bg-emerald-50', 'text-emerald-700');
+                    activeLink.classList.remove('text-slate-600', 'hover:bg-slate-100');
+                }
+            };
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetPageId = `page-${link.id.split('-')[1]}`;
+                    switchPage(targetPageId);
+                });
+            });
+
+            // --- Sidebar Collapse Logic ---
+            let isSidebarCollapsed = false;
+            const sidebar = document.getElementById('sidebar-nav');
+            const sidebarLogo = document.getElementById('sidebar-logo');
+            const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            const collapseIcon = document.getElementById('collapse-icon');
+            const expandIcon = document.getElementById('expand-icon');
+
+            const toggleSidebar = () => {
+                isSidebarCollapsed = !isSidebarCollapsed;
+                sidebar.classList.toggle('md:w-64', !isSidebarCollapsed);
+                sidebar.classList.toggle('md:w-20', isSidebarCollapsed);
+                sidebar.classList.toggle('md:p-6', !isSidebarCollapsed);
+                sidebar.classList.toggle('md:p-3', isSidebarCollapsed);
+                sidebarTexts.forEach(text => {
+                    text.classList.toggle('hidden', isSidebarCollapsed);
+                });
+                if (sidebarLogo) {
+                    sidebarLogo.classList.toggle('justify-center', isSidebarCollapsed);
+                    sidebarLogo.classList.toggle('gap-3', !isSidebarCollapsed);
+                }
+                const newIconSize = '20';
+                navLinks.forEach(link => {
+                    link.classList.toggle('justify-center', isSidebarCollapsed);
+                    link.classList.toggle('gap-3', !isSidebarCollapsed);
+                    const icon = link.querySelector('svg');
+                    if (icon) {
+                        icon.setAttribute('width', newIconSize);
+                        icon.setAttribute('height', newIconSize);
+                    }
+                });
+                if (collapseIcon && expandIcon) {
+                    collapseIcon.setAttribute('width', newIconSize);
+                    collapseIcon.setAttribute('height', newIconSize);
+                    expandIcon.setAttribute('width', newIconSize);
+                    expandIcon.setAttribute('height', newIconSize);
+                    collapseIcon.style.display = isSidebarCollapsed ? 'none' : 'block';
+                    expandIcon.style.display = isSidebarCollapsed ? 'block' : 'none';
+                }
+            };
+            
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', toggleSidebar);
+            }
+
+            // --- Modal Handling ---
+            const openModal = (modal) => {
+                const modalContent = modalBackdrop.querySelector(`#${modal.id}`);
+                if (!modalContent) return;
+                modalBackdrop.querySelectorAll('.modal-content').forEach(mc => {
+                    mc.style.display = 'none';
+                });
+                modalContent.style.display = 'block';
+                modalBackdrop.style.display = 'flex';
+                modalContent.style.animation = 'slideDown 0.3s ease-out';
+                modalBackdrop.style.animation = 'fadeIn 0.3s ease-out';
+            };
+
+            const closeModal = () => {
+                const activeModalContent = modalBackdrop.querySelector('.modal-content[style*="display: block"]');
+                if (activeModalContent) {
+                    activeModalContent.style.animation = 'slideUp 0.3s ease-out';
+                }
+                modalBackdrop.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    modalBackdrop.style.display = 'none';
+                    if (activeModalContent) {
+                        activeModalContent.style.display = 'none';
+                    }
+                }, 300);
+            };
+            
+            modalBackdrop.addEventListener('click', (e) => {
+                if (e.target === modalBackdrop) {
+                    closeModal();
+                }
+            });
+
+            // --- Confirm Modal Logic ---
+            const openConfirmModal = (title, message, onConfirm) => {
+                confirmModalTitle.textContent = title;
+                confirmModalMessage.innerHTML = message;
+                currentConfirmCallback = onConfirm;
+                openModal(confirmModal);
+            };
+            
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (typeof currentConfirmCallback === 'function') {
+                    currentConfirmCallback();
+                }
+                currentConfirmCallback = null;
+                closeModal();
+            });
+
+            cancelDeleteBtn.addEventListener('click', () => {
+                currentConfirmCallback = null;
+                closeModal();
+            });
+            document.getElementById('close-confirm-modal').addEventListener('click', closeModal);
+
+            // --- Helper: Populate Project Selects ---
+            const populateProjectSelects = () => {
+                const selects = [
+                    document.getElementById('task-project'),
+                    logForm.querySelector('#log-project'),
+                    logProjectFilter,
+                    taskProjectFilter,
+                    document.getElementById('contact-project'),
+                    contactProjectFilter,
+                    checkProjectFilter,
+                    document.getElementById('check-project')
+                ];
+                const projects = [...db.projects].sort((a,b) => a.name.localeCompare(b.name));
+                selects.forEach(select => {
+                    if (!select) return;
+                    const firstOptionValue = select.options[0] ? select.options[0].value : "";
+                    const firstOptionHTML = select.options[0] ? select.options[0].outerHTML : "";
+                    select.innerHTML = firstOptionHTML;
+                    
+                    // NEW: Add "General" option specifically for contact-related selects
+                    if (select.id === 'contact-project' || select.id === 'contact-project-filter') {
+                        const genOpt = document.createElement('option');
+                        genOpt.value = 'general';
+                        genOpt.textContent = 'General';
+                        select.appendChild(genOpt);
+                    }
+
+                    projects.forEach(project => {
+                        const option = document.createElement('option');
+                        option.value = project.id;
+                        option.textContent = project.name;
+                        select.appendChild(option);
+                    });
+                    if (select.options[0].value !== firstOptionValue) {
+                         select.options[0].value = firstOptionValue;
+                    }
+                });
+            };
+            
+            // --- Project Logic ---
+            // calculateProjectProgress moved up before logProgressChange
+
+            // Helper to check for Risk/Delay status
+            const getProjectRiskStatus = (project, progress) => {
+                if (project.status === 'Completed' || project.status === 'Planning' || !project.startDate || !project.endDate) {
+                    return null;
+                }
+                const start = new Date(project.startDate);
+                const end = new Date(project.endDate);
+                const today = new Date();
+                // Normalize times for accurate date comparison
+                start.setHours(0,0,0,0);
+                end.setHours(23,59,59,999);
+                today.setHours(0,0,0,0);
+
+                if (today > end) {
+                    return 'Delayed';
+                }
+
+                if (today >= start) {
+                    const totalDuration = end - start;
+                    const elapsed = today - start;
+                    let expectedProgress = 0;
+                    if (totalDuration > 0) {
+                         expectedProgress = (elapsed / totalDuration) * 100;
+                    }
+                    // If actual progress lags behind expected by more than 10%
+                    if ((expectedProgress - progress) > 10) {
+                        return 'At Risk';
+                    }
+                }
+                return null;
+            };
+
+            const renderProjects = () => {
+                projectList.innerHTML = '';
+                if (db.projects.length === 0) {
+                    noProjectsMsg.style.display = 'block';
+                    return;
+                }
+                noProjectsMsg.style.display = 'none';
+                
+                db.projects.sort((a, b) => a.name.localeCompare(b.name));
+                db.projects.forEach(project => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between';
+                    card.dataset.id = project.id;
+                    
+                    const progressPercentage = calculateProjectProgress(project.id);
+                    
+                    // Determine Risk/Delay Badge
+                    const riskStatus = getProjectRiskStatus(project, progressPercentage);
+                    let additionalBadge = '';
+                    let dateColorClass = 'text-slate-400'; // Default date icon color
+
+                    if (riskStatus === 'Delayed') {
+                        additionalBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-600 text-white">Delayed</span>`;
+                        dateColorClass = 'text-red-500';
+                    } else if (riskStatus === 'At Risk') {
+                         additionalBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-500 text-white">At Risk</span>`;
+                         dateColorClass = 'text-amber-500';
+                    }
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-2 gap-2">
+                                <h3 class="text-lg font-semibold text-slate-800 leading-tight">${project.name}</h3>
+                                <div class="flex flex-col items-end gap-1 shrink-0">
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusBadge(project.status)}">${project.status}</span>
+                                    ${additionalBadge}
+                                </div>
+                            </div>
+                            <div class="space-y-1 text-sm text-slate-600 mt-3">
+                                <p class="flex items-center gap-2">
+                                    ${getIconHTML('map-pin', { size: 14, className: 'text-slate-400' })}
+                                    ${project.location}
+                                </p>
+                                <p class="flex items-center gap-2 ${riskStatus === 'Delayed' ? 'text-red-600 font-medium' : (riskStatus === 'At Risk' ? 'text-amber-600 font-medium' : '')}">
+                                    ${getIconHTML('calendar', { size: 14, className: dateColorClass })}
+                                    ${formatDate(project.startDate)} - ${formatDate(project.endDate)}
+                                </p>
+                                <p class="flex items-center gap-2">
+                                    ${getIconHTML('tag', { size: 14, className: 'text-slate-400' })}
+                                    ${project.type}
+                                </p>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs text-slate-500 mb-1">
+                                    <span>Progress</span>
+                                    <span class="font-medium text-slate-700">${progressPercentage}%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                                    <div class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: ${progressPercentage}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 mt-5 pt-4 border-t border-slate-100">
+                            <button class="view-notes-btn inline-flex items-center gap-1.5 px-3 py-1 border border-slate-300 text-xs font-medium rounded-lg text-slate-600 bg-white hover:bg-slate-50 transition-all">
+                                ${getIconHTML('book-marked', { size: 14 })}
+                                View Notes
+                            </button>
+                            <div class="flex gap-1">
+                                <button class="edit-project-btn p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-emerald-600 transition-colors" title="Edit">
+                                    ${getIconHTML('edit-2')}
+                                </button>
+                                <button class="delete-project-btn p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-red-600 transition-colors" title="Delete">
+                                    ${getIconHTML('trash-2')}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    projectList.appendChild(card);
+                });
+                populateProjectSelects();
+            };
+
+            document.getElementById('add-project-btn').addEventListener('click', () => {
+                projectForm.reset();
+                document.getElementById('project-id').value = '';
+                document.getElementById('project-modal-title').textContent = 'Add New Project';
+                openModal(projectModal);
+            });
+
+            document.getElementById('cancel-project-modal').addEventListener('click', closeModal);
+            document.getElementById('close-project-modal').addEventListener('click', closeModal);
+
+            projectForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('project-id').value;
+                const projectData = {
+                    id: id || generateId(),
+                    name: document.getElementById('project-name').value,
+                    location: document.getElementById('project-location').value,
+                    startDate: document.getElementById('project-start-date').value,
+                    endDate: document.getElementById('project-end-date').value,
+                    type: document.getElementById('project-type').value,
+                    status: document.getElementById('project-status').value,
+                    notes: document.getElementById('project-notes').value,
+                };
+
+                if (id) {
+                    const index = db.projects.findIndex(p => p.id === id);
+                    if (index !== -1) {
+                        const oldStatus = db.projects[index].status;
+                        db.projects[index] = { ...db.projects[index], ...projectData };
+                        if (oldStatus !== projectData.status) {
+                            logProgressChange(id, `Project status changed from '${oldStatus}' to '${projectData.status}'.`);
+                        } else {
+                             logProgressChange(id, `Project details updated.`);
+                        }
+                    }
+                } else {
+                    db.projects.push(projectData);
+                    logProgressChange(projectData.id, `Project created: ${projectData.name}`);
+                }
+                saveDb(); // SAVE
+                renderProjects();
+                renderDashboard();
+                renderFacilityTasks();
+                renderTimeline();
+                renderLogs(); // Ensure logs are updated if we are on that page
+                closeModal();
+            });
+
+            projectList.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-project-btn');
+                if (editBtn) {
+                    const card = editBtn.closest('[data-id]');
+                    const project = db.projects.find(p => p.id === card.dataset.id);
+                    if (project) {
+                        document.getElementById('project-id').value = project.id;
+                        document.getElementById('project-name').value = project.name;
+                        document.getElementById('project-location').value = project.location;
+                        document.getElementById('project-start-date').value = project.startDate;
+                        document.getElementById('project-end-date').value = project.endDate;
+                        document.getElementById('project-type').value = project.type;
+                        document.getElementById('project-status').value = project.status;
+                        document.getElementById('project-notes').value = project.notes || '';
+                        document.getElementById('project-modal-title').textContent = 'Edit Project';
+                        openModal(projectModal);
+                    }
+                }
+                const deleteBtn = e.target.closest('.delete-project-btn');
+                if (deleteBtn) {
+                    const card = deleteBtn.closest('[data-id]');
+                    const projectId = card.dataset.id;
+                    const project = db.projects.find(p => p.id === projectId);
+                    openConfirmModal('Delete Project?', `Delete <strong>${project ? project.name : 'this project'}</strong>?`, () => {
+                        db.projects = db.projects.filter(p => p.id !== projectId);
+                        db.tasks = db.tasks.filter(t => t.projectId !== projectId);
+                        db.logs = db.logs.filter(l => l.projectId !== projectId);
+                        db.qualityChecks = db.qualityChecks.filter(q => q.projectId !== projectId);
+                        db.contacts.forEach(c => { if (c.projectId === projectId) c.projectId = ''; });
+                        saveDb(); // SAVE
+                        renderProjects(); renderTasks(); renderLogs(); renderContacts(); renderQualityChecks(); renderDashboard(); renderFacilityTasks(); renderTimeline();
+                    });
+                }
+                const notesBtn = e.target.closest('.view-notes-btn');
+                if (notesBtn) {
+                    const card = notesBtn.closest('[data-id]');
+                    const project = db.projects.find(p => p.id === card.dataset.id);
+                    if (project) {
+                        notesModalTitle.textContent = `Notes for: ${project.name}`;
+                        notesModalContent.textContent = project.notes || 'No notes or links added for this project.';
+                        openModal(notesModal);
+                    }
+                }
+            });
+            
+            // --- Task Logic ---
+            const calculateTaskProgress = (taskId) => {
+                const task = db.tasks.find(t => t.id === taskId);
+                if (!task) return;
+                if (!task.subtasks || task.subtasks.length === 0) {
+                    task.progress = (task.status === 'Done') ? 100 : 0;
+                } else {
+                    let totalWeight = 0, completedWeight = 0;
+                    task.subtasks.forEach(sub => {
+                        const total = sub.totalQty || 0;
+                        const completed = sub.completedQty || 0;
+                        if (total > 0) {
+                            totalWeight += 1;
+                            completedWeight += (completed / total);
+                        }
+                    });
+                    const overallProgress = (totalWeight > 0) ? (completedWeight / totalWeight) * 100 : 0;
+                    task.progress = overallProgress;
+                    if (overallProgress === 100) task.status = 'Done';
+                    else if (overallProgress > 0) task.status = 'In Progress';
+                    else task.status = 'To-Do';
+                }
+                renderTasks(); renderDashboard(); renderFacilityTasks(); renderProjects();
+            };
+
+            const renderTasks = () => {
+                mainTaskGrid.innerHTML = '';
+                const selectedProject = taskProjectFilter.value;
+                const selectedStatus = taskStatusFilter.value;
+                const selectedType = taskTypeFilter.value;
+                let filteredTasks = db.tasks.filter(task => {
+                    return ((selectedProject === 'all') || (task.projectId === selectedProject)) &&
+                           ((selectedStatus === 'all') || (task.status === selectedStatus)) &&
+                           ((selectedType === 'all') || (task.type === selectedType));
+                });
+                if (filteredTasks.length === 0) {
+                    noTasksMsg.style.display = 'block';
+                    return;
+                }
+                noTasksMsg.style.display = 'none';
+                const statusOrder = { 'In Progress': 1, 'To-Do': 2, 'Done': 3 };
+                const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
+                filteredTasks.sort((a, b) => {
+                    if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
+                    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
+                    return new Date(a.dueDate) - new Date(b.dueDate);
+                });
+                filteredTasks.forEach(task => mainTaskGrid.appendChild(createTaskElement(task, true)));
+            };
+
+            const createTaskElement = (task, isCard = false) => {
+                const taskItem = document.createElement('li');
+                if (isCard) {
+                     taskItem.className = 'bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:shadow-md transition-all duration-150 flex flex-col relative'; // Added 'relative' and increased padding
+                } else {
+                     taskItem.className = 'p-4 hover:bg-slate-50 transition-colors duration-150 border-b border-slate-100 last:border-0';
+                }
+                taskItem.dataset.id = task.id;
+                const project = db.projects.find(p => p.id === task.projectId);
+                const projectName = project ? project.name : 'No Project';
+                const dueDateHTML = task.dueDate ? `<p class="text-sm text-slate-500 flex items-center gap-1.5 mt-2">${getIconHTML('clock', { size: 14 })} Due: ${formatDate(task.dueDate)}</p>` : '';
+                const typeHTML = task.type ? `<span class="text-xs text-slate-500">• ${task.type}</span>` : '';
+                const progressHTML = `<div class="mt-4"><div class="flex justify-between text-xs text-slate-500 mb-1"><span>Progress</span><span class="font-medium">${Math.round(task.progress || 0)}%</span></div><div class="w-full bg-slate-100 rounded-full h-1.5"><div class="bg-emerald-500 rounded-full h-1.5 transition-all duration-300" style="width: ${task.progress || 0}%"></div></div></div>`;
+                const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+                
+                // New Toggle Status Button (only if no subtasks)
+                const toggleStatusHTML = !hasSubtasks ? `<button class="toggle-task-status shrink-0 mt-0.5" title="Toggle Status">${task.status === 'Done' ? getIconHTML('check-circle', {className: 'text-emerald-500', size: 22}) : getIconHTML('circle', {className: 'text-slate-300 hover:text-slate-400 transition-colors', size: 22})}</button>` : ``;
+                
+                // Eye Button relocated to top right for cards
+                const topEyeBtn = (isCard && hasSubtasks) ? 
+                    `<button class="view-subtasks-btn absolute top-4 right-4 p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-all duration-200" title="Quick View Subtasks">
+                        ${getIconHTML('eye', { size: 20 })}
+                     </button>` : '';
+
+                taskItem.innerHTML = `
+                    ${topEyeBtn}
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 flex-1 min-w-0 ${isCard && hasSubtasks ? 'pr-8' : ''}"> <!-- Add padding right if eye button is present -->
+                            ${toggleStatusHTML}
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full ${getStatusBadge(task.status)}">${task.status}</span>
+                                    <div title="Priority: ${task.priority}">${getPriorityIcon(task.priority)}</div>
+                                </div>
+                                <p class="font-semibold text-slate-800 ${task.status === 'Done' ? 'line-through text-slate-400' : ''} leading-snug truncate" title="${task.description}">${task.description}</p>
+                                <div class="flex items-center gap-1 flex-wrap text-sm text-slate-500 mt-1">
+                                    <span class="truncate font-medium" title="${projectName}">${projectName}</span>
+                                    ${typeHTML}
+                                </div>
+                                ${!isCard ? dueDateHTML : ''}
+                            </div>
+                        </div>
+                    </div>
+                    ${isCard ? '<div class="mt-auto">' : ''}
+                        ${isCard ? dueDateHTML : ''}
+                        ${progressHTML}
+                        <div class="flex items-center justify-between mt-4 pt-4 ${isCard ? 'border-t border-slate-100' : 'gap-4'}">
+                            
+                            <!-- Bigger, more prominent Manage Subtasks button on the left -->
+                            <button class="subtasks-btn flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 text-xs font-semibold rounded-md transition-all duration-150" title="Manage Subtasks">
+                                ${getIconHTML('list-plus', { size: 16 })}
+                                <span>Subtasks ${hasSubtasks ? `(${task.subtasks.length})` : ''}</span>
+                            </button>
+
+                            <div class="flex items-center gap-1">
+                                ${(!isCard && hasSubtasks) ? `<button class="view-subtasks-btn p-2 rounded-md text-slate-400 hover:bg-slate-100 hover:text-emerald-600 transition-all" title="View Subtasks">${getIconHTML('eye', { size: 18 })}</button>` : ''}
+                                <button class="edit-task-btn p-2 rounded-md text-slate-400 hover:bg-slate-100 hover:text-blue-600 transition-all" title="Edit">${getIconHTML('edit-2', { size: 18 })}</button>
+                                <button class="delete-task-btn p-2 rounded-md text-slate-400 hover:bg-slate-100 hover:text-red-600 transition-all" title="Delete">${getIconHTML('trash-2', { size: 18 })}</button>
+                            </div>
+                        </div>
+                    ${isCard ? '</div>' : ''}
+                `;
+                return taskItem;
+            };
+
+            document.getElementById('add-task-btn').addEventListener('click', () => {
+                taskForm.reset();
+                document.getElementById('task-id').value = '';
+                document.getElementById('task-modal-title').textContent = 'Add New Task';
+                document.getElementById('task-status').disabled = false;
+                openModal(taskModal);
+            });
+
+            document.getElementById('cancel-task-modal').addEventListener('click', closeModal);
+            document.getElementById('close-task-modal').addEventListener('click', closeModal);
+
+            taskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('task-id').value;
+                const costInput = document.getElementById('task-cost').value;
+                const taskData = {
+                    description: document.getElementById('task-description').value,
+                    projectId: document.getElementById('task-project').value,
+                    priority: document.getElementById('task-priority').value,
+                    status: document.getElementById('task-status').value,
+                    type: document.getElementById('task-type').value,
+                    dueDate: document.getElementById('task-due-date').value,
+                    // Default to 1 if input is empty, otherwise parse the number
+                    cost: costInput === '' ? 1 : parseFloat(costInput)
+                };
+                if (id) {
+                    const index = db.tasks.findIndex(t => t.id === id);
+                    if (index !== -1) db.tasks[index] = { ...db.tasks[index], ...taskData };
+                } else {
+                    taskData.id = generateId();
+                    taskData.progress = 0;
+                    db.tasks.push(taskData);
+                }
+                if (id) calculateTaskProgress(id);
+                else { renderTasks(); renderDashboard(); renderFacilityTasks(); renderTimeline(); renderProjects(); }
+                saveDb(); // SAVE
+                closeModal();
+            });
+
+            mainTaskGrid.addEventListener('click', (e) => {
+                const target = e.target;
+                const editBtn = target.closest('.edit-task-btn');
+                if (editBtn) {
+                    const task = db.tasks.find(t => t.id === editBtn.closest('[data-id]').dataset.id);
+                    if (task) {
+                        document.getElementById('task-id').value = task.id;
+                        document.getElementById('task-description').value = task.description;
+                        document.getElementById('task-project').value = task.projectId;
+                        document.getElementById('task-priority').value = task.priority;
+                        document.getElementById('task-status').value = task.status;
+                        document.getElementById('task-type').value = task.type;
+                        document.getElementById('task-due-date').value = task.dueDate;
+                        document.getElementById('task-cost').value = task.cost || '';
+                        document.getElementById('task-modal-title').textContent = 'Edit Task';
+                        const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+                        document.getElementById('task-status').disabled = hasSubtasks;
+                        openModal(taskModal);
+                    }
+                }
+                const toggleBtn = target.closest('.toggle-task-status');
+                if (toggleBtn) {
+                    const taskId = toggleBtn.closest('[data-id]').dataset.id;
+                    const task = db.tasks.find(t => t.id === taskId);
+                    if (task && (!task.subtasks || task.subtasks.length === 0)) {
+                        const oldStatus = task.status;
+                        task.status = (task.status === 'Done') ? 'To-Do' : 'Done';
+                        calculateTaskProgress(taskId);
+                        logProgressChange(task.projectId, `Task '${task.description}' status changed from '${oldStatus}' to '${task.status}'.`);
+                        saveDb(); // SAVE
+                    }
+                }
+                const deleteBtn = target.closest('.delete-task-btn');
+                if (deleteBtn) {
+                    const taskId = deleteBtn.closest('[data-id]').dataset.id;
+                    openConfirmModal('Delete Task?', 'Are you sure?', () => {
+                        db.tasks = db.tasks.filter(t => t.id !== taskId);
+                        saveDb(); // SAVE
+                        renderTasks(); renderDashboard(); renderFacilityTasks(); renderTimeline(); renderProjects();
+                    });
+                }
+                const subtasksBtn = target.closest('.subtasks-btn');
+                if (subtasksBtn) openSubtaskModal(subtasksBtn.closest('[data-id]').dataset.id);
+                const viewSubtasksBtn = target.closest('.view-subtasks-btn');
+                if (viewSubtasksBtn) openViewSubtaskModal(viewSubtasksBtn.closest('[data-id]').dataset.id);
+            });
+
+            taskProjectFilter.addEventListener('change', renderTasks);
+            taskStatusFilter.addEventListener('change', renderTasks);
+            taskTypeFilter.addEventListener('change', renderTasks);
+
+            // --- Facility Task Logic ---
+            const renderFacilityTasks = () => {
+                maintenanceTaskList.innerHTML = '';
+                reconfigTaskList.innerHTML = '';
+                const maintenanceTasks = db.tasks.filter(t => t.type === 'Maintenance');
+                const reconfigTasks = db.tasks.filter(t => t.type === 'Reconfiguration');
+                if (maintenanceTasks.length === 0) noMaintenanceTasks.style.display = 'block';
+                else {
+                    noMaintenanceTasks.style.display = 'none';
+                    maintenanceTasks.forEach(task => maintenanceTaskList.appendChild(createTaskElement(task, false)));
+                }
+                if (reconfigTasks.length === 0) noReconfigTasks.style.display = 'block';
+                else {
+                    noReconfigTasks.style.display = 'none';
+                    reconfigTasks.forEach(task => reconfigTaskList.appendChild(createTaskElement(task, false)));
+                }
+            };
+            
+            document.getElementById('page-facility').addEventListener('click', (e) => {
+                // Re-use main task grid listener logic for facility page (same buttons)
+                const target = e.target;
+                if (target.closest('.edit-task-btn') || target.closest('.toggle-task-status') || target.closest('.delete-task-btn') || target.closest('.subtasks-btn') || target.closest('.view-subtasks-btn')) {
+                     // Dispatch a click to the main grid handler if found (simplification, or just copy logic)
+                     // For robustness, better to have a shared handler function, but for now, duplicating key parts:
+                     const editBtn = target.closest('.edit-task-btn');
+                     if (editBtn) {
+                         const task = db.tasks.find(t => t.id === editBtn.closest('[data-id]').dataset.id);
+                         if (task) {
+                             document.getElementById('task-id').value = task.id;
+                             // ... populate form ...
+                             document.getElementById('task-description').value = task.description;
+                             document.getElementById('task-project').value = task.projectId;
+                             document.getElementById('task-priority').value = task.priority;
+                             document.getElementById('task-status').value = task.status;
+                             document.getElementById('task-type').value = task.type;
+                             document.getElementById('task-due-date').value = task.dueDate;
+                             document.getElementById('task-cost').value = task.cost || '';
+                             document.getElementById('task-modal-title').textContent = 'Edit Task';
+                             document.getElementById('task-status').disabled = (task.subtasks && task.subtasks.length > 0);
+                             openModal(taskModal);
+                         }
+                     }
+                     const toggleBtn = target.closest('.toggle-task-status');
+                     if (toggleBtn) {
+                         const taskId = toggleBtn.closest('[data-id]').dataset.id;
+                         const task = db.tasks.find(t => t.id === taskId);
+                         if (task && (!task.subtasks || task.subtasks.length === 0)) {
+                             const oldStatus = task.status;
+                             task.status = (task.status === 'Done') ? 'To-Do' : 'Done';
+                             calculateTaskProgress(taskId);
+                             logProgressChange(task.projectId, `Task '${task.description}' status changed from '${oldStatus}' to '${task.status}'.`);
+                             saveDb(); // SAVE
+                         }
+                     }
+                     const deleteBtn = target.closest('.delete-task-btn');
+                     if (deleteBtn) {
+                         const taskId = deleteBtn.closest('[data-id]').dataset.id;
+                         openConfirmModal('Delete Task?', 'Are you sure?', () => {
+                             db.tasks = db.tasks.filter(t => t.id !== taskId);
+                             saveDb(); // SAVE
+                             renderTasks(); renderDashboard(); renderFacilityTasks(); renderTimeline(); renderProjects();
+                         });
+                     }
+                     const subtasksBtn = target.closest('.subtasks-btn');
+                     if (subtasksBtn) openSubtaskModal(subtasksBtn.closest('[data-id]').dataset.id);
+                     const viewSubtasksBtn = target.closest('.view-subtasks-btn');
+                     if (viewSubtasksBtn) openViewSubtaskModal(viewSubtasksBtn.closest('[data-id]').dataset.id);
+                }
+            });
+
+            // --- Contact Logic ---
+            const renderContacts = () => {
+                contactList.innerHTML = '';
+                
+                // Get filter values
+                const searchTerm = contactSearch.value.toLowerCase();
+                const selectedProject = contactProjectFilter.value;
+
+                // Filter the contacts
+                const filteredContacts = db.contacts.filter(contact => {
+                    const matchesProject = (selectedProject === 'all') || (contact.projectId === selectedProject);
+                    const matchesSearch = 
+                        contact.name.toLowerCase().includes(searchTerm) ||
+                        contact.role.toLowerCase().includes(searchTerm) ||
+                        contact.email.toLowerCase().includes(searchTerm) ||
+                        contact.phone.includes(searchTerm);
+                    
+                    return matchesProject && matchesSearch;
+                });
+
+                if (filteredContacts.length === 0) {
+                    noContactsMsg.style.display = 'block';
+                    // Adjust message based on if we have any contacts at all vs just none matching filter
+                    if (db.contacts.length === 0) {
+                         noContactsMsg.textContent = 'No contacts found. Add a new contact to get started.';
+                    } else {
+                         noContactsMsg.textContent = 'No contacts found matching your criteria.';
+                    }
+                    return;
+                }
+                noContactsMsg.style.display = 'none';
+                
+                filteredContacts.sort((a, b) => a.name.localeCompare(b.name));
+                filteredContacts.forEach(contact => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-sm border border-slate-200 p-4';
+                    card.dataset.id = contact.id;
+                    
+                    // UPDATED: Handle "General" project assignment display
+                    let projectName = 'None';
+                    if (contact.projectId === 'general') {
+                        projectName = 'General';
+                    } else if (contact.projectId) {
+                         const project = db.projects.find(p => p.id === contact.projectId);
+                         if (project) projectName = project.name;
+                    }
+
+                    const phoneViber = formatPhoneForViber(contact.phone);
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-slate-800">${contact.name}</h4>
+                                <p class="text-sm text-slate-500">${contact.role}</p>
+                                <p class="text-sm text-slate-500 flex items-center gap-1.5 mt-1">${getIconHTML('hard-hat', { size: 14 })} ${projectName}</p>
+                            </div>
+                            <div class="flex gap-1 shrink-0">
+                                <button class="edit-contact-btn p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600" title="Edit">${getIconHTML('edit-2', { size: 16 })}</button>
+                                <button class="delete-contact-btn p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-red-600" title="Delete">${getIconHTML('trash-2', { size: 16 })}</button>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-100 mt-3 pt-3 flex flex-wrap gap-2 justify-between items-center">
+                            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                                <a href="mailto:${contact.email}" class="flex items-center gap-1.5 text-sm text-emerald-700 hover:underline" title="Send Email">${getIconHTML('mail', { size: 14 })} ${contact.email}</a>
+                                <a href="tel:${contact.phone}" class="flex items-center gap-1.5 text-sm text-emerald-700 hover:underline" title="Call">${getIconHTML('phone', { size: 14 })} ${contact.phone}</a>
+                            </div>
+                            <div class="flex gap-2">
+                                 <button class="copy-email-btn flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-600" title="Copy Email">Copy Email</button>
+                                 <a href="viber://chat?number=${phoneViber}" target="_blank" class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-600" title="Open Viber">Viber</a>
+                            </div>
+                        </div>
+                    `;
+                    contactList.appendChild(card);
+                });
+            };
+
+            document.getElementById('add-contact-btn').addEventListener('click', () => {
+                contactForm.reset();
+                document.getElementById('contact-id').value = '';
+                document.getElementById('contact-modal-title').textContent = 'Add New Contact';
+                openModal(contactModal);
+            });
+
+            document.getElementById('cancel-contact-modal').addEventListener('click', closeModal);
+            document.getElementById('close-contact-modal').addEventListener('click', closeModal);
+
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('contact-id').value;
+                const contactData = {
+                    id: id || generateId(),
+                    name: document.getElementById('contact-name').value,
+                    role: document.getElementById('contact-role').value,
+                    projectId: document.getElementById('contact-project').value,
+                    phone: document.getElementById('contact-phone').value,
+                    email: document.getElementById('contact-email').value,
+                };
+                if (id) {
+                    const index = db.contacts.findIndex(c => c.id === id);
+                    if (index !== -1) db.contacts[index] = { ...db.contacts[index], ...contactData };
+                } else {
+                    db.contacts.push(contactData);
+                }
+                saveDb(); // SAVE
+                renderContacts();
+                closeModal();
+            });
+            
+            contactList.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-contact-btn');
+                if (editBtn) {
+                    const contact = db.contacts.find(c => c.id === editBtn.closest('[data-id]').dataset.id);
+                    if (contact) {
+                        document.getElementById('contact-id').value = contact.id;
+                        document.getElementById('contact-name').value = contact.name;
+                        document.getElementById('contact-role').value = contact.role;
+                        document.getElementById('contact-project').value = contact.projectId || '';
+                        document.getElementById('contact-phone').value = contact.phone;
+                        document.getElementById('contact-email').value = contact.email;
+                        document.getElementById('contact-modal-title').textContent = 'Edit Contact';
+                        openModal(contactModal);
+                    }
+                }
+                const deleteBtn = e.target.closest('.delete-contact-btn');
+                if (deleteBtn) {
+                    const contactId = deleteBtn.closest('[data-id]').dataset.id;
+                    openConfirmModal('Delete Contact?', 'Are you sure?', () => {
+                        db.contacts = db.contacts.filter(c => c.id !== contactId);
+                        saveDb(); // SAVE
+                        renderContacts();
+                    });
+                }
+                const copyEmailBtn = e.target.closest('.copy-email-btn');
+                if (copyEmailBtn) {
+                    const contact = db.contacts.find(c => c.id === copyEmailBtn.closest('[data-id]').dataset.id);
+                    if (contact && contact.email) copyToClipboard(contact.email);
+                }
+            });
+
+            // NEW EVENT LISTENERS FOR CONTACT SEARCH/FILTER
+            contactSearch.addEventListener('input', renderContacts);
+            contactProjectFilter.addEventListener('change', renderContacts);
+
+            // --- Log Logic ---
+            const renderLogs = () => {
+                logList.innerHTML = '';
+                const selectedProject = logProjectFilter.value;
+                const selectedType = logTypeFilter.value;
+
+                let filteredLogs = db.logs.filter(log => {
+                    const matchesProject = (selectedProject === 'all') || (log.projectId === selectedProject);
+                    let matchesType = true;
+                    if (selectedType === 'user') matchesType = log.type !== 'system';
+                    if (selectedType === 'system') matchesType = log.type === 'system';
+                    return matchesProject && matchesType;
+                });
+
+                if (filteredLogs.length === 0) {
+                    noLogsMsg.style.display = 'block';
+                    return;
+                }
+                noLogsMsg.style.display = 'none';
+                
+                // Sort by date descending (newest first)
+                filteredLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                filteredLogs.forEach(log => {
+                    const project = db.projects.find(p => p.id === log.projectId);
+                    const isSystem = log.type === 'system';
+                    const logItem = document.createElement('div');
+                    // System logs get a slightly different background and smaller padding
+                    logItem.className = `rounded-xl shadow-sm border border-slate-200 p-4 ${isSystem ? 'bg-slate-50/80' : 'bg-white'}`;
+                    logItem.dataset.id = log.id;
+                    
+                    const typeBadge = isSystem 
+                        ? `<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-slate-200 text-slate-600 uppercase tracking-wider">System</span>`
+                        : `<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 uppercase tracking-wider">User Note</span>`;
+
+                    // Handle both old (YYYY-MM-DD) and new (ISO) date formats for display
+                    let displayDate = 'Invalid Date';
+                    try {
+                        const dateObj = new Date(log.date);
+                        // If it's an ISO string with time, show time too. Otherwise just date.
+                        if (log.date.includes('T')) {
+                             displayDate = dateObj.toLocaleString('en-US', { 
+                                month: 'short', day: 'numeric', year: 'numeric', 
+                                hour: 'numeric', minute: '2-digit', hour12: true 
+                            });
+                        } else {
+                             // Fallback for old legacy data
+                             displayDate = formatDate(log.date);
+                        }
+                    } catch (e) {
+                        displayDate = formatDate(log.date);
+                    }
+
+                    // Highlight [Project Progress: XX%] in system logs
+                    let logEntryHtml = log.entry;
+                    if (isSystem) {
+                         logEntryHtml = logEntryHtml.replace(/\[Project Progress: (\d+)%\]/g, '<span class="text-emerald-600 font-semibold">[Project Progress: $1%]</span>');
+                    }
+
+                    logItem.innerHTML = `
+                        <div class="flex justify-between items-start mb-2.5">
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-semibold text-slate-800">${project ? project.name : 'Unknown Project'}</h4>
+                                ${typeBadge}
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm text-slate-500">${displayDate}</span>
+                                <button class="delete-log-btn p-1 rounded-md text-slate-400 hover:bg-slate-200 hover:text-red-600 transition-colors" title="Delete Log">${getIconHTML('trash-2', { size: 16 })}</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed ${isSystem ? 'font-mono text-xs' : ''}">${logEntryHtml}</p>
+                    `;
+                    logList.appendChild(logItem);
+                });
+            };
+
+            logForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // User manually added logs get the selected date but current time for sorting
+                const selectedDate = document.getElementById('log-date').value;
+                const now = new Date();
+                // Combine selected date with current time
+                const fullDate = new Date(selectedDate);
+                fullDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+                
+                db.logs.push({
+                    id: generateId(),
+                    projectId: document.getElementById('log-project').value,
+                    date: fullDate.toISOString(),
+                    entry: document.getElementById('log-entry').value,
+                    type: 'user' // Explicitly mark as user log
+                });
+                saveDb(); // SAVE
+                renderLogs();
+                logForm.reset();
+                document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+            });
+
+            logList.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest('.delete-log-btn');
+                if (deleteBtn) {
+                    const logId = deleteBtn.closest('[data-id]').dataset.id;
+                    openConfirmModal('Delete Log Entry?', 'Are you sure?', () => {
+                        db.logs = db.logs.filter(l => l.id !== logId);
+                        saveDb(); // SAVE
+                        renderLogs();
+                    });
+                }
+            });
+            logProjectFilter.addEventListener('change', renderLogs);
+            logTypeFilter.addEventListener('change', renderLogs); // NEW listener
+            // --- Subtask Modal Logic ---
+            const openSubtaskModal = (taskId) => {
+                const task = db.tasks.find(t => t.id === taskId);
+                if (!task) return;
+                subtaskModalTitle.textContent = `Subtasks for: ${task.description}`;
+                subtaskTaskIdInput.value = taskId;
+                subtaskForm.reset();
+                renderSubtasksList(taskId);
+                openModal(subtaskModal);
+            };
+
+            const renderSubtasksList = (taskId) => {
+                const task = db.tasks.find(t => t.id === taskId);
+                if (!task || !task.subtasks || task.subtasks.length === 0) {
+                    subtaskList.innerHTML = '';
+                    noSubtasksMsg.style.display = 'block';
+                    return;
+                }
+                noSubtasksMsg.style.display = 'none';
+                subtaskList.innerHTML = task.subtasks.map(sub => `
+                    <li data-subtask-id="${sub.id}" class="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-lg">
+                        <div class="flex-1 min-w-0"><p class="text-sm font-medium text-slate-800 truncate" title="${sub.description}">${sub.description}</p></div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <input type="number" class="subtask-completed-qty w-20 px-2 py-1 bg-white border border-slate-300 rounded-md text-sm text-right focus:outline-none focus:ring-1 focus:ring-emerald-500" value="${sub.completedQty || 0}" min="0" max="${sub.totalQty}" data-subtask-id="${sub.id}">
+                            <span class="text-sm text-slate-600">/ ${sub.totalQty} ${sub.unit}</span>
+                            <button class="delete-subtask-btn p-1 rounded-md text-slate-400 hover:bg-slate-200 hover:text-red-600" title="Delete Subtask" data-subtask-id="${sub.id}">${getIconHTML('trash-2', { size: 16 })}</button>
+                        </div>
+                    </li>`).join('');
+            };
+
+            subtaskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const taskId = subtaskTaskIdInput.value;
+                const task = db.tasks.find(t => t.id === taskId);
+                if (!task) return;
+                if (!task.subtasks) task.subtasks = [];
+                task.subtasks.push({
+                    id: generateId(),
+                    description: document.getElementById('subtask-description').value,
+                    totalQty: parseFloat(document.getElementById('subtask-total-qty').value) || 0,
+                    unit: document.getElementById('subtask-unit').value || 'units',
+                    completedQty: 0
+                });
+                saveDb(); // SAVE
+                subtaskForm.reset();
+                renderSubtasksList(taskId);
+                calculateTaskProgress(taskId);
+            });
+            
+            // CHANGED: This now only enforces UI constraints, it DOES NOT save to DB.
+            subtaskList.addEventListener('input', (e) => {
+                if (e.target.classList.contains('subtask-completed-qty')) {
+                    const max = parseFloat(e.target.getAttribute('max')) || 0;
+                    let val = parseFloat(e.target.value) || 0;
+                    // Enforce min/max visually immediately so user knows they can't go over
+                    if (val > max) e.target.value = max;
+                    if (val < 0) e.target.value = 0;
+                }
+             });
+
+            // NEW: Save button handler for subtasks to prevent log flooding
+            saveSubtasksBtn.addEventListener('click', () => {
+                const taskId = subtaskTaskIdInput.value;
+                const task = db.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                const oldProgress = task.progress || 0;
+                let anyChanges = false;
+
+                // 1. Gather all inputs and update the data model
+                const inputs = subtaskList.querySelectorAll('.subtask-completed-qty');
+                inputs.forEach(input => {
+                    const subtaskId = input.getAttribute('data-subtask-id');
+                    const subtask = task.subtasks.find(s => s.id === subtaskId);
+                    if (subtask) {
+                        const newVal = parseFloat(input.value) || 0;
+                        // Ensure we don't save invalid values even if they somehow bypassed the input listener
+                        const constrainedVal = Math.max(0, Math.min(newVal, subtask.totalQty));
+                        
+                        if (subtask.completedQty !== constrainedVal) {
+                            subtask.completedQty = constrainedVal;
+                            anyChanges = true;
+                        }
+                    }
+                });
+
+                // 2. If changes occurred, recalculate progress, log ONCE, and save.
+                if (anyChanges) {
+                    calculateTaskProgress(taskId); // This updates task.progress
+                    const newProgress = task.progress || 0;
+
+                    // Create a consolidated log message
+                    if (Math.round(oldProgress) !== Math.round(newProgress)) {
+                         logProgressChange(task.projectId, `Subtasks updated for '${task.description}'. Progress changed from ${Math.round(oldProgress)}% to ${Math.round(newProgress)}%.`);
+                    } else {
+                         // Generic log if progress didn't change numerically (e.g. very small change) but values did
+                         logProgressChange(task.projectId, `Subtasks updated for task '${task.description}'.`);
+                    }
+                    saveDb();
+                    showToast('Subtasks saved successfully.');
+                }
+
+                closeModal();
+            });
+
+            subtaskList.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest('.delete-subtask-btn');
+                if (deleteBtn) {
+                    const task = db.tasks.find(t => t.id === subtaskTaskIdInput.value);
+                    if (task) {
+                        const subtaskId = deleteBtn.getAttribute('data-subtask-id');
+                        const subtask = task.subtasks.find(s => s.id === subtaskId);
+                        if (subtask) {
+                             logProgressChange(task.projectId, `Subtask deleted: '${subtask.description}'.`);
+                        }
+                        task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+                        renderSubtasksList(task.id);
+                        calculateTaskProgress(task.id);
+                        saveDb(); // SAVE
+                    }
+                }
+            });
+            document.getElementById('close-subtask-modal').addEventListener('click', closeModal);
+            document.getElementById('cancel-subtask-modal').addEventListener('click', closeModal);
+
+            // --- View Subtask Modal Logic ---
+            const openViewSubtaskModal = (taskId) => {
+                const task = db.tasks.find(t => t.id === taskId);
+                if (!task) return;
+                viewSubtaskModalTitle.textContent = `View Subtasks for: ${task.description}`;
+                if (!task.subtasks || task.subtasks.length === 0) {
+                    viewSubtaskList.innerHTML = '';
+                    viewNoSubtasksMsg.style.display = 'block';
+                } else {
+                    viewNoSubtasksMsg.style.display = 'none';
+                    viewSubtaskList.innerHTML = task.subtasks.map(sub => {
+                        const completed = parseFloat(sub.completedQty) || 0;
+                        const total = parseFloat(sub.totalQty) || 0;
+                        const progress = (total > 0) ? Math.round((completed / total) * 100) : 0;
+                        return `<li class="p-3 bg-slate-50 rounded-lg"><p class="text-sm font-medium text-slate-800">${sub.description}</p><div class="flex items-center justify-between mt-2"><span class="text-sm text-slate-600">Progress: <strong>${completed} / ${total} ${sub.unit}</strong></span><div class="w-24"><div class="w-full bg-slate-200 rounded-full h-1.5"><div class="bg-emerald-500 rounded-full h-1.5" style="width: ${progress}%"></div></div></div><span class="text-sm font-medium text-slate-700 w-12 text-right">${progress}%</span></div></li>`;
+                    }).join('');
+                }
+                openModal(viewSubtaskModal);
+            };
+            document.getElementById('close-view-subtask-modal').addEventListener('click', closeModal);
+            document.getElementById('cancel-view-subtask-modal').addEventListener('click', closeModal);
+
+            // --- Notes Modal Logic ---
+            document.getElementById('close-notes-modal').addEventListener('click', closeModal);
+            document.getElementById('ok-notes-modal').addEventListener('click', closeModal);
+
+            // --- Quality Assurance Logic ---
+            const renderQualityChecks = () => {
+                qualityCheckList.innerHTML = '';
+                const selectedProject = checkProjectFilter.value;
+                const selectedStatus = checkStatusFilter.value;
+                const filteredChecks = db.qualityChecks.filter(check => ((selectedProject === 'all') || (check.projectId === selectedProject)) && ((selectedStatus === 'all') || (check.status === selectedStatus)));
+                summaryPassed.textContent = db.qualityChecks.filter(c => c.status === 'Passed').length;
+                summaryFailed.textContent = db.qualityChecks.filter(c => c.status === 'Failed').length;
+                summaryPending.textContent = db.qualityChecks.filter(c => c.status === 'Pending').length;
+                if (filteredChecks.length === 0) {
+                    noChecksMsg.style.display = 'block';
+                    return;
+                }
+                noChecksMsg.style.display = 'none';
+                filteredChecks.sort((a, b) => {
+                    const statusOrder = { 'Failed': 1, 'Pending': 2, 'Passed': 3 };
+                    if (statusOrder[a.status] !== statusOrder[b.status]) return statusOrder[a.status] - statusOrder[b.status];
+                    return a.description.localeCompare(b.description);
+                });
+                filteredChecks.forEach(check => {
+                    const checkItem = document.createElement('li');
+                    checkItem.className = 'p-4 hover:bg-slate-50 transition-colors duration-150';
+                    checkItem.dataset.id = check.id;
+                    const project = db.projects.find(p => p.id === check.projectId);
+                    checkItem.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div><p class="font-medium text-slate-800">${check.description}</p><p class="text-sm text-slate-500">${project ? project.name : 'No Project'}</p></div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusBadge(check.status)}">${check.status}</span>
+                                <button class="pass-check-btn p-1 rounded-md text-slate-400 hover:bg-green-100 hover:text-green-600" title="Mark as Passed">${getIconHTML('check-circle', { size: 16 })}</button>
+                                <button class="fail-check-btn p-1 rounded-md text-slate-400 hover:bg-red-100 hover:text-red-600" title="Mark as Failed">${getIconHTML('x-circle', { size: 16 })}</button>
+                                <button class="reset-check-btn p-1 rounded-md text-slate-400 hover:bg-yellow-100 hover:text-yellow-700" title="Reset to Pending">${getIconHTML('rotate-cw', { size: 16 })}</button>
+                                <button class="edit-check-btn p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600" title="Edit">${getIconHTML('edit-2', { size: 16 })}</button>
+                                <button class="delete-check-btn p-1 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600" title="Delete">${getIconHTML('trash-2', { size: 16, className: 'hover:text-red-600' })}</button>
+                            </div>
+                        </div>`;
+                    qualityCheckList.appendChild(checkItem);
+                });
+            };
+
+            document.getElementById('add-check-btn').addEventListener('click', () => {
+                checkForm.reset();
+                document.getElementById('check-id').value = '';
+                document.getElementById('check-modal-title').textContent = 'Add New Quality Check';
+                document.getElementById('check-status').value = 'Pending';
+                openModal(checkModal);
+            });
+
+            document.getElementById('cancel-check-modal').addEventListener('click', closeModal);
+            document.getElementById('close-check-modal').addEventListener('click', closeModal);
+
+            checkForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = document.getElementById('check-id').value;
+                const checkData = {
+                    description: document.getElementById('check-description').value,
+                    projectId: document.getElementById('check-project').value,
+                    status: document.getElementById('check-status').value,
+                };
+                if (id) {
+                    const index = db.qualityChecks.findIndex(c => c.id === id);
+                    if (index !== -1) db.qualityChecks[index] = { ...db.qualityChecks[index], ...checkData };
+                } else {
+                    checkData.id = generateId();
+                    db.qualityChecks.push(checkData);
+                }
+                saveDb(); // SAVE
+                renderQualityChecks(); renderDashboard(); closeModal();
+            });
+    
+            qualityCheckList.addEventListener('click', (e) => {
+                const setStatus = (buttonClass, newStatus) => {
+                    const btn = e.target.closest(buttonClass);
+                    if (btn) {
+                        const check = db.qualityChecks.find(c => c.id === btn.closest('[data-id]').dataset.id);
+                        if (check) { 
+                            check.status = newStatus; 
+                            saveDb(); // SAVE
+                            renderQualityChecks(); 
+                            renderDashboard(); 
+                        }
+                    }
+                };
+                setStatus('.pass-check-btn', 'Passed');
+                setStatus('.fail-check-btn', 'Failed');
+                setStatus('.reset-check-btn', 'Pending');
+
+                const editBtn = e.target.closest('.edit-check-btn');
+                if (editBtn) {
+                    const check = db.qualityChecks.find(c => c.id === editBtn.closest('[data-id]').dataset.id);
+                    if (check) {
+                        document.getElementById('check-id').value = check.id;
+                        document.getElementById('check-description').value = check.description;
+                        document.getElementById('check-project').value = check.projectId;
+                        document.getElementById('check-status').value = check.status;
+                        document.getElementById('check-modal-title').textContent = 'Edit Quality Check';
+                        openModal(checkModal);
+                    }
+                }
+                const deleteBtn = e.target.closest('.delete-check-btn');
+                if (deleteBtn) {
+                    const checkId = deleteBtn.closest('[data-id]').dataset.id;
+                    openConfirmModal('Delete Check?', 'Are you sure?', () => {
+                        db.qualityChecks = db.qualityChecks.filter(c => c.id !== checkId);
+                        saveDb(); // SAVE
+                        renderQualityChecks(); renderDashboard();
+                    });
+                }
+            });
+            checkProjectFilter.addEventListener('change', renderQualityChecks);
+            checkStatusFilter.addEventListener('change', renderQualityChecks);
+
+            // --- Settings Logic ---
+            if (exportDataBtn) {
+                exportDataBtn.addEventListener('click', () => {
+                    const dataStr = JSON.stringify(db, null, 2);
+                    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                    const exportFileDefaultName = `facilities_dashboard_backup_${new Date().toISOString().split('T')[0]}.json`;
+                    const linkElement = document.createElement('a');
+                    linkElement.setAttribute('href', dataUri);
+                    linkElement.setAttribute('download', exportFileDefaultName);
+                    linkElement.click();
+                    showToast('Data exported successfully!');
+                });
+            }
+
+            if (importDataBtn && importFileInput) {
+                importDataBtn.addEventListener('click', () => importFileInput.click());
+                importFileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const importedData = JSON.parse(event.target.result);
+                            // Basic validation to ensure it's the right kind of file
+                            if (Array.isArray(importedData.projects) && Array.isArray(importedData.tasks)) {
+                                openConfirmModal(
+                                    'Overwrite Data?', 
+                                    'Importing this file will <strong>replace all current data</strong>. Are you sure you want to proceed?', 
+                                    () => {
+                                        db = importedData;
+                                        saveDb();
+                                        showToast('Data restored successfully! Reloading...');
+                                        setTimeout(() => window.location.reload(), 1500);
+                                    }
+                                );
+                            } else {
+                                showToast('Error: Invalid backup file format.');
+                            }
+                        } catch (err) {
+                            console.error('Error parsing import file:', err);
+                            showToast('Error: Could not parse the file.');
+                        }
+                        // Reset input so the same file can be selected again if needed
+                        importFileInput.value = ''; 
+                    };
+                    reader.readAsText(file);
+                });
+            }
+
+            if (clearDataBtn) {
+                clearDataBtn.addEventListener('click', () => {
+                    openConfirmModal(
+                        'Clear ALL Data?', 
+                        '<span class="text-red-600 font-semibold">Warning:</span> This will permanently delete all projects, tasks, logs, and settings from this browser. Are you absolutely sure?',
+                        () => {
+                            localStorage.removeItem(STORAGE_KEY);
+                            showToast('All data cleared. Reloading...');
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    );
+                });
+            }
+    
+            // --- Dashboard Logic ---
+            const renderDashboard = () => {
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                const sevenDaysFromNow = new Date(today); sevenDaysFromNow.setDate(today.getDate() + 7);
+                
+                const activeProjectsList = db.projects.filter(p => p.status !== 'Completed');
+                dashActiveProjects.textContent = activeProjectsList.length;
+                
+                // Updated KPI to use unified risk detection
+                let delayedCount = 0;
+                let atRiskCount = 0;
+                activeProjectsList.forEach(p => {
+                     const risk = getProjectRiskStatus(p, calculateProjectProgress(p.id));
+                     if (risk === 'Delayed') delayedCount++;
+                     else if (risk === 'At Risk') atRiskCount++;
+                });
+
+                if (delayedCount > 0 || atRiskCount > 0) {
+                    dashActiveProjectsDetail.innerHTML = `${delayedCount} Delayed / ${atRiskCount} At Risk`;
+                     // If any are delayed, show red. If only at risk, show amber.
+                    dashActiveProjectsDetail.className = delayedCount > 0 ? 'text-sm mt-1 text-red-500 font-medium' : 'text-sm mt-1 text-amber-500 font-medium';
+                } else {
+                    dashActiveProjectsDetail.textContent = `On Track`;
+                    dashActiveProjectsDetail.className = 'text-sm mt-1 text-green-600 font-medium';
+                }
+                
+                const activeTasksList = db.tasks.filter(t => t.status !== 'Done');
+                dashActiveTasks.textContent = activeTasksList.length;
+                const delayedTasksList = activeTasksList.filter(t => t.dueDate && new Date(t.dueDate + 'T12:00:00Z') < today);
+                dashActiveTasksDetail.textContent = delayedTasksList.length > 0 ? `${delayedTasksList.length} Delayed` : `No delays`;
+                dashActiveTasksDetail.className = delayedTasksList.length > 0 ? 'text-sm mt-1 text-red-500 font-medium' : 'text-sm mt-1 text-green-600 font-medium';
+
+                const pendingQA = db.qualityChecks.filter(c => c.status === 'Pending');
+                dashPendingQA.textContent = pendingQA.length;
+                const pendingProjects = [...new Set(pendingQA.map(c => c.projectId))].length;
+                dashPendingQADetail.textContent = `Across ${pendingProjects} project${pendingProjects !== 1 ? 's' : ''}`;
+
+                const failedQA = db.qualityChecks.filter(c => c.status === 'Failed');
+                dashFailedQA.textContent = failedQA.length;
+                const failedProjects = [...new Set(failedQA.map(c => c.projectId))].length;
+                dashFailedQADetail.textContent = `Blocking ${failedProjects} project${failedProjects !== 1 ? 's' : ''}`;
+
+                renderDashboardCharts();
+
+                const highPriorityTasks = db.tasks.filter(t => t.priority === 'High' && t.status !== 'Done').sort((a,b) => (a.dueDate && b.dueDate) ? new Date(a.dueDate) - new Date(b.dueDate) : a.dueDate ? -1 : 1);
+                dashHighPriorityList.innerHTML = '';
+                if (highPriorityTasks.length === 0) dashNoHighPriority.style.display = 'block';
+                else {
+                    dashNoHighPriority.style.display = 'none';
+                    highPriorityTasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.className = 'p-4 transition-colors duration-150' + (task.subtasks?.length > 0 ? ' hover:bg-slate-50 cursor-pointer dashboard-task-item' : '');
+                        if (task.subtasks?.length > 0) li.dataset.taskId = task.id;
+                        li.innerHTML = `<div class="flex items-start justify-between"><div class="flex items-start gap-3">${getIconHTML('chevron-up', { size: 16, className: 'text-red-500 shrink-0 mt-1' })}<div><p class="font-medium text-slate-800">${task.description}</p><p class="text-sm text-slate-500">${db.projects.find(p => p.id === task.projectId)?.name || 'No Project'}</p><div class="flex items-center gap-4 mt-1"><span class="text-sm text-slate-500">${task.dueDate ? formatDate(task.dueDate) : 'No Due Date'}</span><span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusBadge(task.status)}">${task.status}</span></div></div></div><div class="shrink-0 ml-2">${task.subtasks?.length > 0 ? getIconHTML('eye', { size: 14, className: 'text-slate-400' }) : ''}</div></div>`;
+                        dashHighPriorityList.appendChild(li);
+                    });
+                }
+
+                delayedTasksList.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                dashDelayedTasksList.innerHTML = '';
+                if (delayedTasksList.length === 0) dashNoDelayedTasks.style.display = 'block';
+                else {
+                    dashNoDelayedTasks.style.display = 'none';
+                    delayedTasksList.forEach(task => {
+                        const daysOverdue = Math.floor((today - new Date(task.dueDate + 'T12:00:00Z')) / (86400000));
+                        const li = document.createElement('li');
+                        li.className = 'p-4 transition-colors duration-150' + (task.subtasks?.length > 0 ? ' hover:bg-slate-50 cursor-pointer dashboard-task-item' : '');
+                        if (task.subtasks?.length > 0) li.dataset.taskId = task.id;
+                        li.innerHTML = `<div class="flex items-start justify-between"><div class="flex items-start gap-3">${getIconHTML('alert-circle', { size: 16, className: 'text-red-500 shrink-0 mt-1' })}<div><p class="font-medium text-slate-800">${task.description}</p><p class="text-sm text-slate-500">${db.projects.find(p => p.id === task.projectId)?.name || 'No Project'}</p><div class="flex items-center gap-4 mt-1"><span class="text-sm font-medium text-red-600">${formatDate(task.dueDate)} (${daysOverdue}d overdue)</span>${getPriorityIcon(task.priority)}</div></div></div><div class="shrink-0 ml-2">${task.subtasks?.length > 0 ? getIconHTML('eye', { size: 14, className: 'text-slate-400' }) : ''}</div></div>`;
+                        dashDelayedTasksList.appendChild(li);
+                    });
+                }
+
+                const failedChecks = db.qualityChecks.filter(c => c.status === 'Failed');
+                dashFailedQAList.innerHTML = '';
+                if (failedChecks.length === 0) dashNoFailedQA.style.display = 'block';
+                else {
+                    dashNoFailedQA.style.display = 'none';
+                    failedChecks.forEach(check => {
+                        const li = document.createElement('li');
+                        li.className = 'p-4 hover:bg-slate-50 transition-colors duration-150';
+                        li.innerHTML = `<div class="flex items-start gap-3">${getIconHTML('shield-x', { size: 16, className: 'text-red-500 shrink-0 mt-1' })}<div><p class="font-medium text-slate-800">${check.description}</p><p class="text-sm text-slate-500">${db.projects.find(p => p.id === check.projectId)?.name || 'No Project'}</p></div></div>`;
+                        dashFailedQAList.appendChild(li);
+                    });
+                }
+
+                const upcomingTasks = db.tasks.filter(t => t.status !== 'Done' && t.dueDate && new Date(t.dueDate + 'T12:00:00Z') >= today && new Date(t.dueDate + 'T12:00:00Z') <= sevenDaysFromNow).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                dashUpcomingDeadlinesList.innerHTML = '';
+                if (upcomingTasks.length === 0) dashNoUpcomingDeadlines.style.display = 'block';
+                else {
+                    dashNoUpcomingDeadlines.style.display = 'none';
+                    upcomingTasks.forEach(task => {
+                        const days = Math.ceil((new Date(task.dueDate + 'T12:00:00Z') - today) / 86400000);
+                        const li = document.createElement('li');
+                        li.className = 'p-4 transition-colors duration-150' + (task.subtasks?.length > 0 ? ' hover:bg-slate-50 cursor-pointer dashboard-task-item' : '');
+                        if (task.subtasks?.length > 0) li.dataset.taskId = task.id;
+                        li.innerHTML = `<div class="flex items-start justify-between"><div class="flex items-start gap-3">${getIconHTML('bell', { size: 16, className: 'text-blue-500 shrink-0 mt-1' })}<div><p class="font-medium text-slate-800">${task.description}</p><p class="text-sm text-slate-500">${db.projects.find(p => p.id === task.projectId)?.name || 'No Project'}</p><div class="flex items-center gap-4 mt-1"><span class="text-sm ${days <= 2 ? 'text-red-600 font-medium' : 'text-slate-500'}">${formatDate(task.dueDate)} (${days === 0 ? 'Today' : days + ' day' + (days > 1 ? 's' : '')})</span><span class="px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusBadge(task.status)}">${task.status}</span></div></div></div><div class="shrink-0 ml-2">${task.subtasks?.length > 0 ? getIconHTML('eye', { size: 14, className: 'text-slate-400' }) : ''}</div></div>`;
+                        dashUpcomingDeadlinesList.appendChild(li);
+                    });
+                }
+            };
+            
+            const renderDashboardCharts = () => {
+                const activeProjects = db.projects.filter(p => p.status !== 'Completed').sort((a, b) => a.name.localeCompare(b.name));
+                const ctx1 = document.getElementById('dashboard-project-status-chart')?.getContext('2d');
+                if (ctx1) {
+                    if (chartProjectStatus) chartProjectStatus.destroy();
+                    chartProjectStatus = new Chart(ctx1, {
+                        type: 'bar',
+                        data: { labels: activeProjects.map(p => p.name), datasets: [{ label: 'Progress', data: activeProjects.map(p => calculateProjectProgress(p.id)), backgroundColor: 'rgb(59, 130, 246)', borderRadius: 4, barPercentage: 0.6 }] },
+                        options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 12 } } }, y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '%' } } } }
+                    });
+                }
+                const ctx2 = document.getElementById('dashboard-overall-progress-chart')?.getContext('2d');
+                if (ctx2) {
+                    if (chartOverallProgress) chartOverallProgress.destroy();
+                    const avg = activeProjects.length > 0 ? Math.round(activeProjects.reduce((sum, p) => sum + calculateProjectProgress(p.id), 0) / activeProjects.length) : 0;
+                    document.getElementById('overall-progress-value').textContent = `${avg}%`;
+                    chartOverallProgress = new Chart(ctx2, {
+                        type: 'doughnut',
+                        data: { labels: ['Progress', 'Remaining'], datasets: [{ data: [avg, 100 - avg], backgroundColor: ['rgb(59, 130, 246)', 'rgb(226, 232, 240)'], borderWidth: 4, cutout: '75%' }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true } } }
+                    });
+                }
+            };
+
+            const handleDashboardTaskClick = (e) => {
+                const taskItem = e.target.closest('.dashboard-task-item');
+                if (taskItem) openViewSubtaskModal(taskItem.dataset.taskId);
+            };
+
+            // --- Timeline Logic ---
+            const renderTimeline = () => {
+                timelineGrid.innerHTML = '';
+                const year = timelineCurrentDate.getFullYear();
+                const month = timelineCurrentDate.getMonth(); // 0-indexed
+                
+                timelineMonthYear.textContent = timelineCurrentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const startDay = new Date(year, month, 1).getDay(); // 0 for Sunday
+                
+                // Empty cells for days before the 1st of the month
+                for (let i = 0; i < startDay; i++) {
+                    timelineGrid.innerHTML += `<div class="border-b border-r border-slate-100 bg-slate-50/30"></div>`;
+                }
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    // Create YYYY-MM-DD string for reliable comparison with input values
+                    const monthStr = String(month + 1).padStart(2, '0');
+                    const dayStr = String(day).padStart(2, '0');
+                    const dateStr = `${year}-${monthStr}-${dayStr}`;
+                    
+                    const isToday = new Date().toDateString() === date.toDateString();
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                    
+                    const cell = document.createElement('div');
+                    cell.className = `border-b border-r border-slate-100 p-2 min-h-[120px] overflow-hidden ${isWeekend ? 'bg-slate-50/50' : ''} ${isToday ? 'bg-emerald-50' : ''}`;
+                    
+                    cell.innerHTML = `<div class="text-xs ${isToday ? 'font-bold text-white bg-emerald-600 rounded-full w-6 h-6 flex items-center justify-center mb-2' : 'font-semibold text-slate-600 mb-1'}">${day}</div>`;
+                    
+                    const events = [];
+                    
+                    // Check Projects
+                    db.projects.forEach(p => {
+                        // Compare using the YYYY-MM-DD string
+                        if (p.startDate === dateStr) {
+                            events.push({ title: p.name + ' (Start)', color: 'bg-green-100 text-green-800 border-green-200', icon: 'calendar' });
+                        }
+                        if (p.endDate === dateStr) {
+                            events.push({ title: p.name + ' (End)', color: 'bg-red-100 text-red-800 border-red-200', icon: 'calendar' });
+                        }
+                    });
+                    
+                    // Check Tasks
+                    db.tasks.forEach(t => {
+                         // Compare using the YYYY-MM-DD string
+                        if (t.dueDate === dateStr && t.status !== 'Done') {
+                             events.push({ title: t.description, color: 'bg-blue-100 text-blue-800 border-blue-200', icon: 'clock' });
+                        }
+                    });
+                    
+                    if (events.length > 0) {
+                        const list = document.createElement('ul'); 
+                        list.className = 'space-y-1 overflow-y-auto max-h-[85px] pr-1'; // Added scroll for many events
+                        events.forEach(e => {
+                            list.innerHTML += `
+                                <li class="flex items-center gap-1.5 p-1.5 rounded-md border ${e.color} text-[11px] leading-tight" title="${e.title}">
+                                    ${getIconHTML(e.icon, { size: 12, className: 'shrink-0 opacity-70' })} 
+                                    <span class="truncate font-medium">${e.title}</span>
+                                </li>`;
+                        });
+                        cell.appendChild(list);
+                    }
+                    
+                    timelineGrid.appendChild(cell);
+                }
+            };
+            timelinePrevBtn.addEventListener('click', () => { timelineCurrentDate.setMonth(timelineCurrentDate.getMonth() - 1); renderTimeline(); });
+            timelineNextBtn.addEventListener('click', () => { timelineCurrentDate.setMonth(timelineCurrentDate.getMonth() + 1); renderTimeline(); });
+
+            // --- Initialization ---
+            const initializeApp = () => {
+                document.getElementById('nav-dashboard').insertAdjacentHTML('afterbegin', getIconHTML('layout-dashboard', { size: 20 }));
+                document.getElementById('nav-projects').insertAdjacentHTML('afterbegin', getIconHTML('hard-hat', { size: 20 }));
+                document.getElementById('nav-tasks').insertAdjacentHTML('afterbegin', getIconHTML('check-square', { size: 20 }));
+                document.getElementById('nav-facility').insertAdjacentHTML('afterbegin', getIconHTML('wrench', { size: 20 }));
+                document.getElementById('nav-timeline').insertAdjacentHTML('afterbegin', getIconHTML('calendar-days', { size: 20 }));
+                document.getElementById('nav-quality').insertAdjacentHTML('afterbegin', getIconHTML('shield-check', { size: 20 }));
+                document.getElementById('nav-logs').insertAdjacentHTML('afterbegin', getIconHTML('notebook-tabs', { size: 20 }));
+                document.getElementById('nav-contacts').insertAdjacentHTML('afterbegin', getIconHTML('contact', { size: 20 }));
+                document.getElementById('nav-settings').insertAdjacentHTML('afterbegin', getIconHTML('settings', { size: 20 }));
+                
+                document.getElementById('dash-icon-projects').innerHTML = getIconHTML('hard-hat', { size: 24, className: 'text-blue-600' });
+                document.getElementById('dash-icon-active-tasks').innerHTML = getIconHTML('activity', { size: 24, className: 'text-yellow-600' });
+                document.getElementById('dash-icon-pending-qa').innerHTML = getIconHTML('clock', { size: 24, className: 'text-indigo-600' });
+                document.getElementById('dash-icon-failed-qa').innerHTML = getIconHTML('alert-triangle', { size: 24, className: 'text-red-600' });
+                document.getElementById('dash-icon-high-priority').innerHTML = getIconHTML('alert-triangle', { size: 20, className: 'text-red-500' });
+                document.getElementById('dash-icon-delayed-tasks').innerHTML = getIconHTML('alert-circle', { size: 20, className: 'text-red-500' });
+                document.getElementById('dash-icon-failed-list').innerHTML = getIconHTML('shield-x', { size: 20, className: 'text-red-600' });
+                document.getElementById('dash-icon-upcoming-deadlines').innerHTML = getIconHTML('bell', { size: 20, className: 'text-blue-500' });
+
+                // Settings Page Icons
+                document.getElementById('settings-icon-database').innerHTML = getIconHTML('database', { size: 24 });
+                document.getElementById('settings-icon-download').innerHTML = getIconHTML('download', { size: 18, className: 'text-slate-500' });
+                document.getElementById('settings-icon-upload').innerHTML = getIconHTML('upload', { size: 18, className: 'text-slate-500' });
+                document.getElementById('settings-icon-danger').innerHTML = getIconHTML('alert-triangle', { size: 24 });
+
+                document.getElementById('add-project-btn').insertAdjacentHTML('afterbegin', getIconHTML('plus-circle', { size: 16 }));
+                document.getElementById('add-task-btn').insertAdjacentHTML('afterbegin', getIconHTML('plus-circle', { size: 16 }));
+                document.getElementById('add-contact-btn').insertAdjacentHTML('afterbegin', getIconHTML('user-plus', { size: 16 }));
+                document.getElementById('add-check-btn').insertAdjacentHTML('afterbegin', getIconHTML('plus-circle', { size: 16 }));
+                dashHighPriorityList.addEventListener('click', handleDashboardTaskClick);
+                dashDelayedTasksList.addEventListener('click', handleDashboardTaskClick);
+                dashUpcomingDeadlinesList.addEventListener('click', handleDashboardTaskClick);
+                if (sidebar) sidebar.classList.add('md:p-6');
+                document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+
+                // --- LOAD DATA FROM LOCAL STORAGE ---
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    try {
+                        db = JSON.parse(savedData);
+                        // Ensure all arrays exist in case of old save data
+                        db.projects = db.projects || [];
+                        db.tasks = db.tasks || [];
+                        db.logs = db.logs || [];
+                        db.contacts = db.contacts || [];
+                        db.qualityChecks = db.qualityChecks || [];
+                    } catch (e) {
+                        console.error("Error parsing saved data", e);
+                        // If parse fails, save the current empty db to reset
+                        saveDb();
+                    }
+                } else {
+                    // No saved data, initialize with empty db
+                    saveDb();
+                }
+
+                db.tasks.forEach(task => calculateTaskProgress(task.id));
+                renderProjects(); renderTasks(); renderLogs(); renderContacts(); renderQualityChecks(); renderDashboard(); renderFacilityTasks(); renderTimeline();
+                switchPage('page-dashboard');
+            };
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
